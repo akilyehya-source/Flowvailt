@@ -116,7 +116,7 @@ function showLock(msg=''){
  <input id="pw" type="password" autocomplete="off" placeholder="Master password" aria-label="Master password" autofocus>
  <div class="err" id="err">${esc(msg)}</div>
  <button class="btn" style="width:100%" id="go">${first?'Create vault':'Unlock'}</button>
- ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}</form></div>`;
+ ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v4 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
  $('#f').onsubmit=async e=>{e.preventDefault();const pw=$('#pw').value;if(pw.length<4){$('#err').textContent='Use at least 4 characters.';return}
   $('#go').disabled=true;$('#go').textContent='Deriving key…';
   try{await unlock(pw)}catch{showLock('Wrong master password.')}};

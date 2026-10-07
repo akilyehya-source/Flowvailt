@@ -74,6 +74,7 @@ li.b.completed:before{background:var(--brass)}
 .wcard{max-width:460px;margin:8vh auto;padding:20px;text-align:center}.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:16px}
 .wfoot{padding:6px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
 @media(max-width:760px){main{grid-template-columns:1fr;overflow-y:auto}aside{border-left:0;border-top:1px solid var(--line)}.search span{display:none}}
+input{font-size:16px!important} /* iOS zooms the page when an input is smaller than 16px */
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -183,7 +184,7 @@ document.addEventListener('click',async e=>{
  else if(a==='wx'){web.tabs=web.tabs.filter(t=>t.id!==id);if(!web.tabs.length)web=null;else if(web.active===id)web.active=web.tabs[web.tabs.length-1].id;drawWeb()}
  else if(a==='wnew')openWeb('')
  else if(a==='wclose'){web.show=false;drawWeb()}
- else if(a==='wgo'){webCur().url=item(id).url;drawWeb()}
+ else if(a==='wgo'){if(standalone)window.open(item(id).url,'_blank','noopener,noreferrer');else{webCur().url=item(id).url;drawWeb()}}
  else if(a==='wext'){const u=webCur().url;if(u)window.open(u,'_blank','noopener,noreferrer')}
  else if(a==='open')launch(id);
  else if(a==='copy'){const i=item(id);const p=JSON.parse(await decryptData(i.ct,i.iv,key)).password;await copySecret(p,i.title)}
@@ -278,7 +279,7 @@ function finish(){
  session=null;drawHud();clipWipe();render();
 }
 /* ── in-app browser: tabs inside the page (no Safari) ── */
-const BLOCKED=/(^|\.)(google\.com|github\.com|stripe\.com|facebook\.com|instagram\.com|x\.com|twitter\.com|linkedin\.com|microsoft\.com|live\.com|apple\.com|amazon\.com|paypal\.com)$/i;
+const BLOCKED=/(^|\.)(google\.com|youtube\.com|youtu\.be|github\.com|stripe\.com|outlook\.com|office\.com|reddit\.com|netflix\.com|whatsapp\.com|tiktok\.com|openai\.com|claude\.ai|anthropic\.com|discord\.com|notion\.so|slack\.com|dropbox\.com|spotify\.com|bing\.com|yahoo\.com|facebook\.com|instagram\.com|x\.com|twitter\.com|linkedin\.com|microsoft\.com|live\.com|apple\.com|amazon\.com|paypal\.com)$/i;
 const hostOf=u=>{try{return new URL(u).hostname}catch{return''}};
 const webCur=()=>web&&web.tabs.find(t=>t.id===web.active);
 function normalize(q){q=q.trim();if(!q)return null;let u=q;if(!/^https?:\/\//i.test(q))u=/^\S+\.[a-z]{2,}(\/\S*)?$/i.test(q)?'https://'+q:'https://en.wikipedia.org/w/index.php?search='+encodeURIComponent(q);try{const x=new URL(u);return /^https?:$/.test(x.protocol)?x.href:null}catch{return null}}
@@ -289,14 +290,14 @@ function drawWeb(){
  if(!w){w=document.createElement('div');w.id='wb';w.className='web';w.setAttribute('role','dialog');w.setAttribute('aria-label','In-app browser');document.body.append(w)}
  w.style.bottom=session?'84px':'0';
  const h=c.url?hostOf(c.url):'';
- const body=!c.url?`<div class="qgrid">${vault.items.filter(i=>i.url).map(i=>`<button class="card" style="margin:0;text-align:left" data-a="wgo" data-id="${i.id}"><b>${esc(i.title)}</b><div class="mute">${esc(hostOf(i.url))}</div></button>`).join('')}</div><p class="mute" style="padding:0 16px">Type an address or a search in the bar. (This demo searches Wikipedia; the real app uses a search API.)</p>`
+ const body=!c.url?`<div class="qgrid">${vault.items.filter(i=>i.url).map(i=>`<button class="card" style="margin:0;text-align:left" data-a="wgo" data-id="${i.id}"><b>${esc(i.title)}</b><div class="mute">${esc(hostOf(i.url))}</div></button>`).join('')}</div><p class="mute" style="padding:0 16px">${standalone?'Pages open in the iPhone in-app browser (tap Done to come back). ':''}Type an address or a search in the bar. (This demo searches Wikipedia; the real app uses a search API.)</p>`
  :BLOCKED.test(h)?`<div class="wcard"><h2>${esc(h)} can't be shown inside another page</h2><p class="mute">Large sites refuse to be embedded, for security. In the installed iPhone/Android app this opens in the built-in browser sheet instead.</p><button class="btn" data-a="wext">Open in browser</button></div>`
  :`<iframe src="${esc(c.url)}" sandbox="allow-scripts allow-forms allow-same-origin allow-popups" referrerpolicy="no-referrer" title="${esc(h)}"></iframe>`;
  w.innerHTML=`<div class="tabs">${web.tabs.map(t=>`<span class="tab ${t.id===web.active?'on':''}"><button data-a="wtab" data-id="${t.id}">${esc(t.url?hostOf(t.url):'New tab')}</button><button data-a="wx" data-id="${t.id}" aria-label="Close tab">×</button></span>`).join('')}<button class="ghost" data-a="wnew" aria-label="New tab">+</button><button class="ghost" data-a="wclose" style="margin-left:auto">Done</button></div>
  <form id="wf" class="bar"><input id="wq" value="${esc(c.url)}" placeholder="Search or enter address" aria-label="Address or search" autocomplete="off"><button class="btn">Go</button></form>
  <div class="wbody">${body}</div>${c.url&&!BLOCKED.test(h)?'<div class="wfoot">Blank page? Some sites refuse to be embedded. <button class="link" data-a="wext">Open in browser</button></div>':''}`;
 }
-document.addEventListener('submit',e=>{if(e.target.id!=='wf')return;e.preventDefault();const u=normalize($('#wq').value),c=webCur();if(u&&c){c.url=u;drawWeb()}});
+document.addEventListener('submit',e=>{if(e.target.id!=='wf')return;e.preventDefault();const u=normalize($('#wq').value),c=webCur();if(u&&c){if(standalone)window.open(u,'_blank','noopener,noreferrer');else{c.url=u;drawWeb()}}});
 showLock();
 </script>
 </body>

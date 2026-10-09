@@ -64,7 +64,7 @@ li.b.completed:before{background:var(--brass)}
 .lock input{width:100%;margin:14px 0 10px;padding:10px 12px;background:var(--ink);border:1px solid var(--line);border-radius:9px;color:var(--text);font:inherit}
 .err{color:#f08a8a;min-height:20px;font-size:13px}
 .hud{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(640px,calc(100% - 24px));background:var(--panel);border:1px solid var(--sig);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.45);padding:10px 14px;animation:in .2s;z-index:5}
-.hud .r{display:flex;align-items:center;gap:12px}.hud .t{flex:1;min-width:0}.hud .t b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hud .r{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.hud .t{flex:1 1 120px;min-width:0}.hud .t b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .code{font-size:26px;font-weight:700;letter-spacing:.12em;color:var(--sig);background:none;border:0;padding:0}.wheel{width:36px;height:36px;flex:none}
 .web{position:fixed;inset:0;z-index:4;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);animation:in .2s}
 .tabs{display:flex;gap:6px;align-items:center;padding:8px 12px;background:var(--ink);border-bottom:1px solid var(--line);overflow-x:auto}
@@ -75,6 +75,96 @@ li.b.completed:before{background:var(--brass)}
 .wfoot{padding:6px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
 @media(max-width:760px){main{grid-template-columns:1fr;overflow-y:auto}aside{border-left:0;border-top:1px solid var(--line)}.search span{display:none}}
 input{font-size:16px!important} /* iOS zooms the page when an input is smaller than 16px */
+.nlist{padding:12px;display:grid;gap:10px}.ni{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}.ni b{display:block}.ni p{margin:4px 0 0;color:var(--mute);font-size:13px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ned{display:flex;flex-direction:column;gap:10px;padding:12px;flex:1;min-height:0}.ned input,.ned select,.ned textarea{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);font:inherit}.ned textarea{flex:1;resize:none}
+textarea,select{font-size:16px}
+@media(max-width:760px){header{flex-wrap:wrap}.search{order:5;flex-basis:100%;max-width:none}}
+
+
+
+
+
+
+/* ───────── Library: 3D shelves ───────── */
+#lib{z-index:4}
+#lib .tabs{gap:8px;flex-wrap:wrap;overflow:visible}#lib .tabs .btn,#lib .tabs .ghost{white-space:nowrap}#lib .tabs input[type=search]{flex:1 1 140px}#lib .tabs #lcount{margin-right:auto}
+#lib .tabs input[type=search]{flex:1;min-width:90px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 10px;color:var(--text);font:inherit}
+#lib select,#rd select{background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:6px 8px;font:inherit;font-size:16px}
+.room{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;perspective:1500px;perspective-origin:50% -35%;
+ background:radial-gradient(ellipse 80% 50% at 50% 0,#4a3321 0,#24180f 55%,#120c07 100%);padding:34px 8px 70px;position:relative}
+.rows,.shelf{pointer-events:none}.rows{transform-style:preserve-3d}
+.shelf{position:relative;margin:0 auto 52px;height:212px;transform-style:preserve-3d}
+.shelf .back{position:absolute;inset:0;transform:translateZ(-150px);background:
+ linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,0) 30%,rgba(0,0,0,.45)),repeating-linear-gradient(90deg,#3a2616 0 22px,#33210f 22px 44px)}
+.shelf .floor{position:absolute;left:0;right:0;bottom:0;height:150px;transform-origin:50% 100%;transform:rotateX(90deg);
+ background:repeating-linear-gradient(90deg,rgba(0,0,0,.07) 0 2px,transparent 2px 11px),linear-gradient(#b07c4f,#8a5b36)}
+.shelf .sl,.shelf .sr{position:absolute;top:0;width:150px;height:100%;background:linear-gradient(90deg,#2b1b0f,#4a3020)}
+.shelf .sl{left:0;transform-origin:0 50%;transform:rotateY(90deg)}
+.shelf .sr{right:0;transform-origin:100% 50%;transform:rotateY(-90deg);background:linear-gradient(270deg,#2b1b0f,#4a3020)}
+.shelf .plank{position:absolute;left:-8px;right:-8px;bottom:-20px;height:20px;border-radius:2px;
+ background:linear-gradient(#a5703f,#7a4c27 55%,#56331a);box-shadow:0 14px 22px rgba(0,0,0,.55)}
+.books{position:absolute;left:16px;right:16px;bottom:0;display:flex;align-items:flex-end;gap:1px;transform-style:preserve-3d;pointer-events:none}.books .slot{pointer-events:auto}
+.slot{transform-style:preserve-3d;transform:translateZ(calc(-14px - var(--d)/2));transition:transform .28s cubic-bezier(.2,.8,.3,1);cursor:pointer;
+ background:none;border:0;padding:0;font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
+.slot:hover,.slot.pull{transform:translateZ(calc(-14px - var(--d)/2 + 34px)) rotateY(-14deg)}
+.slot:focus-visible{outline:2px solid var(--sig);outline-offset:6px}
+.bk{position:relative;width:var(--t);height:var(--h);transform-style:preserve-3d}
+.bk .f{position:absolute;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.bk .sp{inset:0;transform:translateZ(calc(var(--d)/2));overflow:hidden;
+ background:linear-gradient(90deg,var(--cd),var(--c) 22%,var(--cl) 48%,var(--c) 78%,var(--cd));color:var(--ink);border-radius:1px}
+.bk .sp:before,.bk .sp:after{content:"";position:absolute;left:0;right:0;height:3px;background:rgba(240,214,150,.75)}
+.bk .sp:before{top:9px}.bk .sp:after{bottom:12px}
+.bk .sp span{position:absolute;inset:18px 0 20px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);
+ font:600 calc(var(--t)*.34 + 2px)/1.15 Georgia,"Times New Roman",serif;letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.bk .sp i{position:absolute;left:0;bottom:0;height:3px;background:#f0d696;opacity:.95}
+.bk .bs{inset:0;transform:rotateY(180deg) translateZ(calc(var(--d)/2));background:var(--cd)}
+.bk .fc,.bk .bc{width:var(--d);height:var(--h);left:calc((var(--t) - var(--d))/2);top:0;background-color:var(--c);background-size:100% 100%;background-position:center}
+.bk .fc{transform:rotateY(90deg) translateZ(calc(var(--t)/2))}
+.bk .bc{transform:rotateY(-90deg) translateZ(calc(var(--t)/2));background:var(--cd)}
+.bk .fc:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(255,255,255,.12) 6%,rgba(0,0,0,0) 14%)}
+.bk .tp{width:var(--t);height:var(--d);left:0;top:calc((var(--h) - var(--d))/2);transform:rotateX(90deg) translateZ(calc(var(--h)/2));
+ background:repeating-linear-gradient(0deg,#f1e7cf 0 1.5px,#d9cba8 1.5px 3px)}
+.lempty{max-width:520px;margin:6vh auto 0;text-align:center;color:#d9c3a0;padding:0 20px}
+.lempty b{display:block;font:600 20px Georgia,serif;margin-bottom:6px;color:#f0d696}
+.lempty p{margin:0;color:#c9b08a;font-size:14px}
+.bdet{position:absolute;inset:0;z-index:3;background:rgba(10,7,4,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;animation:in .2s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.stage{perspective:1100px;height:min(330px,40vh);display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab;width:min(420px,100%)}
+.stage .bk{transform-origin:50% 50%}
+.stage .bk.spin{animation:spin 7s ease-in-out infinite alternate}
+@keyframes spin{from{transform:rotateX(-8deg) rotateY(-62deg)}to{transform:rotateX(-8deg) rotateY(-18deg)}}
+.bdet input.ttl{width:min(420px,100%);text-align:center;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.25);color:#f3e6c8;font:600 18px Georgia,serif;padding:6px}
+.bdet .meta{color:#c9b08a;font-size:13px;text-align:center}
+.bdet .bar2{width:min(260px,70%);height:4px;border-radius:2px;background:rgba(255,255,255,.15);overflow:hidden}.bdet .bar2 i{display:block;height:100%;background:#f0d696}
+.bdet .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.msg{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:9;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:92vw;animation:in .2s}
+/* ───────── Reader ───────── */
+#rd{z-index:6}
+.rbar{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--ink);border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap}
+.rbar .rt{flex:1;min-width:80px;overflow:hidden;text-overflow:ellipsis}
+.rbar .ghost{padding:6px 10px;flex:none}
+.rbar .ghost.on{border-color:var(--sig);color:var(--sig)}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);padding:0;flex:none}.sw.on{border-color:var(--text);box-shadow:0 0 0 2px var(--bg) inset}
+.rsep{width:1px;height:22px;background:var(--line);flex:none;margin:0 2px}
+.rscroll{flex:1;min-height:0;overflow:auto;background:#3a3f47;padding:10px 0 80px;-webkit-overflow-scrolling:touch}
+.rscroll .pg{position:relative;margin:0 auto 10px;width:var(--pw);background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.45)}
+.rscroll .pg canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.rscroll.inv .pc{filter:invert(.92) hue-rotate(180deg)}
+.rscroll .ac{pointer-events:none}.rscroll.tool .ac{pointer-events:auto;touch-action:none}.rscroll.tool.pen .ac{touch-action:pan-y pinch-zoom}
+.rscroll.tool .ac{cursor:crosshair}
+.rscroll .pn{position:absolute;right:6px;top:4px;font-size:11px;color:#8a919c;pointer-events:none}
+.rscroll .ti{position:absolute;min-width:90px;background:rgba(255,255,255,.92);border:1px dashed #2a7;border-radius:4px;color:#111;font-family:-apple-system,"Segoe UI",system-ui,sans-serif;padding:1px 3px;line-height:1.2;resize:none;overflow:hidden;z-index:2}
+.rmenu{position:absolute;right:8px;top:calc(100px + env(safe-area-inset-top,0px));z-index:3;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;display:grid;gap:2px;min-width:230px;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.rmenu button{background:none;border:0;text-align:left;padding:10px 12px;border-radius:8px;display:flex;justify-content:space-between;gap:12px}
+.rmenu button:hover{background:var(--card)}
+.rsrch{position:absolute;left:0;right:0;bottom:0;max-height:55%;z-index:3;background:var(--ink);border-top:1px solid var(--line);display:flex;flex-direction:column;animation:in .2s}
+.rsrch form{display:flex;gap:8px;padding:10px}.rsrch input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 12px;color:var(--text);font:inherit}
+.rsrch ul{list-style:none;margin:0;padding:0 10px 10px;overflow:auto}
+.rsrch li button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 4px}
+.rsrch li b{color:var(--sig);margin-right:8px}
+.rgo{display:flex;gap:8px;padding:8px 10px;background:var(--ink);border-bottom:1px solid var(--line)}.rgo input{width:90px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:6px 10px;color:var(--text);font:inherit}
+@media(max-width:760px){.rbar .lbl{display:none}.rbar{gap:4px;padding:6px}.rbar .ghost{padding:6px 9px}}
+@media(prefers-reduced-motion:reduce){.stage .bk.spin{animation:none;transform:rotateY(-40deg)}.slot{transition:none}}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -105,22 +195,23 @@ try{vault=JSON.parse(localStorage.getItem(KEY))}catch{}
 const saveVault=()=>{try{localStorage.setItem(KEY,JSON.stringify(vault))}catch{}};
 /* ── state ── */
 const LOCK_SEC=120;
-let web=null,tabN=0,inApp=true,session=null,key=null,users={},privacy=false,sel=null,last=Date.now(),clip=null,palette=null;
+let notes=[],noteUI=null,web=null,tabN=0,inApp=true,session=null,key=null,users={},privacy=false,sel=null,last=Date.now(),clip=null,palette=null;
 const root=$('#root');
 /* ── lock screen ── */
 function showLock(msg=''){
- key=null;users={};palette=null;clipWipe();session=null;drawHud();web=null;drawWeb();
+ if(window.libReset)libReset();
+ key=null;users={};palette=null;clipWipe();session=null;drawHud();web=null;drawWeb();notes=[];noteUI=null;drawNotes();
  const first=!vault;
  root.innerHTML=`<div class="lock"><form id="f"><div class="logo" style="font-size:18px">FlowVault</div>
  <p class="mute" style="margin:6px 0 0">${first?'Create a master password for this demo vault. Everything is encrypted in your browser before it is stored.':'Enter your master password to unlock.'}</p>
  <input id="pw" type="password" autocomplete="off" placeholder="Master password" aria-label="Master password" autofocus>
  <div class="err" id="err">${esc(msg)}</div>
  <button class="btn" style="width:100%" id="go">${first?'Create vault':'Unlock'}</button>
- ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v4 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
+ ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v6 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
  $('#f').onsubmit=async e=>{e.preventDefault();const pw=$('#pw').value;if(pw.length<4){$('#err').textContent='Use at least 4 characters.';return}
   $('#go').disabled=true;$('#go').textContent='Deriving key…';
   try{await unlock(pw)}catch{showLock('Wrong master password.')}};
- const r=$('#reset');if(r)r.onclick=()=>{vault=null;try{localStorage.removeItem(KEY)}catch{}showLock()};
+ const r=$('#reset');if(r)r.onclick=()=>{vault=null;try{localStorage.removeItem(KEY);indexedDB.deleteDatabase('flowvault-lib')}catch{}showLock()};
 }
 async function unlock(pw){
  let k;
@@ -135,9 +226,10 @@ async function unlock(pw){
  }
  for(const i of vault.items)users[i.id]=JSON.parse(await decryptData(i.ct,i.iv,k)).username;
  let ch=0;for(const s of SEED){const i=vault.items.find(x=>x.id===s.id);if(s.totp&&i&&!i.tct){const e=await encryptData(s.totp,k);i.tct=e.ciphertext;i.tiv=e.iv;ch=1}}if(ch)saveVault();
+ notes=[];for(const n of vault.notes||[]){try{notes.push({...JSON.parse(await decryptData(n.ct,n.iv,k)),id:n.id,at:n.at,block:n.block})}catch{}}
  key=k;last=Date.now();render();
 }
-function lock(){showLock()}
+async function lock(){try{await flushDraft()}catch{}showLock()}
 /* ── dashboard ── */
 const focusBlock=()=>blocks.find(b=>b.id===sel)||blocks.find(b=>b.status==='active')||blocks.find(b=>b.status==='pending')||null;
 const remaining=b=>Math.max(0,Math.ceil((new Date(b.startedAt).getTime()+b.min*60000-Date.now())/1000));
@@ -148,7 +240,7 @@ function render(){
  <header><span class="logo">FlowVault</span>
  <button class="search" data-a="pal"><span>Search credentials and actions</span><kbd>⌘K</kbd></button>
  <span class="state tn" id="lk">Unlocked · locks in ${fmt(LOCK_SEC)}</span>
- <button class="ghost" data-a="web">Browser</button><button class="btn" data-a="lock">Lock now</button></header>
+ <button class="ghost" data-l="open">Library</button><button class="ghost" data-a="notes">Notes</button><button class="ghost" data-a="web">Browser</button><button class="btn" data-a="lock">Lock now</button></header>
  <main><section aria-label="Today's focus blocks"><h2>Today</h2><ol>
  ${blocks.map(b=>`<li class="b ${b.status}"><button class="blk ${fb&&fb.id===b.id?'sel':''}" data-a="sel" data-id="${b.id}">
   <div class="row"><b>${esc(b.title)}</b><span class="mute tn">${new Date(b.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${b.min} min</span></div>
@@ -186,6 +278,14 @@ document.addEventListener('click',async e=>{
  else if(a==='wclose'){web.show=false;drawWeb()}
  else if(a==='wgo'){if(standalone)window.open(item(id).url,'_blank','noopener,noreferrer');else{webCur().url=item(id).url;drawWeb()}}
  else if(a==='wext'){const u=webCur().url;if(u)window.open(u,'_blank','noopener,noreferrer')}
+ else if(a==='notes')openNotes()
+ else if(a==='qnote')newNote(session&&session.id)
+ else if(a==='nclose'){await flushDraft();noteUI=null;drawNotes()}
+ else if(a==='nnew')newNote(null)
+ else if(a==='nopen'){noteUI={mode:'edit',id,q:''};drawNotes()}
+ else if(a==='nback'){await flushDraft();noteUI={mode:'list',q:''};drawNotes()}
+ else if(a==='nsave'){await flushDraft();noteUI={mode:'list',q:''};drawNotes()}
+ else if(a==='ndel'){if(!noteUI.confirm){await flushDraft();noteUI.confirm=true;drawNotes()}else{await deleteNote(noteUI.id);noteUI={mode:'list',q:''};drawNotes()}}
  else if(a==='open')launch(id);
  else if(a==='copy'){const i=item(id);const p=JSON.parse(await decryptData(i.ct,i.iv,key)).password;await copySecret(p,i.title)}
 });
@@ -207,7 +307,10 @@ async function clipWipe(){
 function openPalette(){palette={q:'',i:0};drawPalette()}
 function cmds(){const f=focusBlock();return[
  {l:privacy?'Turn privacy blur off':'Turn privacy blur on',run:togglePrivacy},
+ {l:'Open library',run:()=>{window.libOpen&&libOpen()}},
  {l:'Open in-app browser',run:()=>{web?(web.show=true,drawWeb()):openWeb('')}},
+ {l:'New note',run:()=>newNote(null)},
+ {l:'Open notes',run:openNotes},
  {l:'Lock vault',run:lock},
  ...(f&&f.status==='pending'?[{l:'Start focus: '+f.title,run:()=>startBlock(f.id)}]:[]),
  ...vault.items.map(i=>({l:'Launch '+i.title,h:i.category,run:()=>launch(i.id)}))]}
@@ -258,13 +361,13 @@ async function launchWorkspace(id){
  drawHud();
 }
 function drawHud(){
- let h=$('#hud');const wb=$('#wb');if(wb)wb.style.bottom=session?'84px':'0';if(!session){if(h)h.remove();return}
+ let h=$('#hud');const wb=$('#wb');if(wb)wb.style.bottom=session?'84px':'0';if(window.libBottom)libBottom();if(!session){if(h)h.remove();return}
  const b=blocks.find(x=>x.id===session.id);
  if(!h){h=document.createElement('div');h.id='hud';h.className='hud';h.setAttribute('role','region');h.setAttribute('aria-label','Active session');document.body.append(h)}
  h.innerHTML=`<div class="r"><div class="t"><b>${esc(b.title)}</b><span class="mute tn" id="ht"></span></div>
  ${session.open?(session.secret?`<svg class="wheel" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="var(--line)" stroke-width="4"/><circle id="hw" cx="18" cy="18" r="15" fill="none" stroke="var(--sig)" stroke-width="4" stroke-linecap="round" stroke-dasharray="94.25" transform="rotate(-90 18 18)"/></svg><button class="code tn" id="hc" data-a="ccopy" title="Copy code">------</button>`:'<span class="mute">No 2FA secret on these credentials</span>'):''}
  <button class="ghost" data-a="hcol" aria-expanded="${session.open}">${session.open?'Collapse':'Expand'}</button>
- ${session.open?'<button class="btn" data-a="finish">Complete block</button>':''}</div>`;
+ ${session.open?'<button class="ghost" data-a="qnote">Note</button><button class="btn" data-a="finish">Complete block</button>':''}</div>`;
  hudTick();
 }
 async function hudTick(){
@@ -298,7 +401,605 @@ function drawWeb(){
  <div class="wbody">${body}</div>${c.url&&!BLOCKED.test(h)?'<div class="wfoot">Blank page? Some sites refuse to be embedded. <button class="link" data-a="wext">Open in browser</button></div>':''}`;
 }
 document.addEventListener('submit',e=>{if(e.target.id!=='wf')return;e.preventDefault();const u=normalize($('#wq').value),c=webCur();if(u&&c){if(standalone)window.open(u,'_blank','noopener,noreferrer');else{c.url=u;drawWeb()}}});
+/* ── encrypted notes: title and body are encrypted with the vault key ── */
+const noteTitle=n=>n.title||(n.body||'').split('\n')[0]||'Untitled';
+function openNotes(){noteUI={mode:'list',q:''};drawNotes()}
+function newNote(block){noteUI={mode:'edit',id:null,q:'',block:block||null};drawNotes()}
+async function saveNote(n){
+ const e=await encryptData(JSON.stringify({title:n.title,body:n.body}),key);
+ const id=n.id||('n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),at=Date.now();
+ vault.notes=(vault.notes||[]).filter(x=>x.id!==id);vault.notes.push({id,ct:e.ciphertext,iv:e.iv,at,block:n.block||null});saveVault();
+ notes=notes.filter(x=>x.id!==id);notes.push({id,title:n.title,body:n.body,at,block:n.block||null});return id}
+async function deleteNote(id){vault.notes=(vault.notes||[]).filter(x=>x.id!==id);saveVault();notes=notes.filter(x=>x.id!==id)}
+async function flushDraft(){
+ if(!key||!noteUI||noteUI.mode!=='edit')return;
+ const t=$('#nti'),b=$('#ntb'),s=$('#ntl');if(!t||!b)return;
+ const title=t.value.trim(),body=b.value;if(!title&&!body.trim())return;
+ noteUI.id=await saveNote({id:noteUI.id,title,body,block:s?s.value||null:noteUI.block})}
+function fillNoteList(){
+ const q=(noteUI.q||'').toLowerCase(),el=$('#nlist');if(!el)return;
+ const list=notes.filter(n=>!q||(n.title+' '+n.body).toLowerCase().includes(q)).sort((a,b)=>b.at-a.at);
+ el.innerHTML=list.length?list.map(n=>{const b=blocks.find(x=>x.id===n.block);return`<button class="ni" data-a="nopen" data-id="${n.id}"><b class="priv">${esc(noteTitle(n))}</b><p class="priv">${esc((n.body||'').slice(0,160))}</p><div class="mute" style="margin-top:6px">${new Date(n.at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}${b?' · '+esc(b.title):''}</div></button>`}).join(''):'<p class="mute">No notes yet. Tap + New to write one.</p>'}
+function drawNotes(){
+ let w=$('#nt');if(!key||!noteUI){if(w)w.remove();return}
+ if(!w){w=document.createElement('div');w.id='nt';w.setAttribute('role','dialog');w.setAttribute('aria-label','Notes');document.body.append(w)}
+ w.className='web'+(privacy?' blur':'');w.style.bottom=session?'84px':'0';
+ if(noteUI.mode==='list'){
+  w.innerHTML=`<div class="tabs"><b style="padding:0 6px">Notes</b><button class="btn" data-a="nnew" style="padding:5px 12px">+ New</button><button class="ghost" data-a="nclose" style="margin-left:auto">Done</button></div>
+  <div class="bar"><input id="nq" value="${esc(noteUI.q||'')}" placeholder="Search notes" aria-label="Search notes" autocomplete="off"></div>
+  <div class="wbody"><div class="nlist" id="nlist"></div></div>`;fillNoteList();
+ }else{
+  const n=notes.find(x=>x.id===noteUI.id)||{title:'',body:'',block:noteUI.block||null};
+  w.innerHTML=`<div class="tabs"><button class="ghost" data-a="nback">‹ Back</button><button class="btn" data-a="nsave" style="padding:5px 12px">Save</button>${noteUI.id?`<button class="ghost" data-a="ndel" style="margin-left:auto">${noteUI.confirm?'Tap again to delete':'Delete'}</button>`:''}</div>
+  <div class="ned"><input id="nti" value="${esc(n.title)}" placeholder="Title" aria-label="Title" autocomplete="off"><textarea id="ntb" placeholder="Write your note. It is encrypted on this device." aria-label="Note">${esc(n.body)}</textarea>
+  <select id="ntl" aria-label="Link to block"><option value="">Not linked to a block</option>${blocks.map(b=>`<option value="${b.id}" ${n.block===b.id?'selected':''}>${esc(b.title)}</option>`).join('')}</select></div>`;
+  if(!noteUI.id&&!n.title&&!n.body)$('#nti').focus();
+ }
+}
+document.addEventListener('input',e=>{if(e.target.id==='nq'&&noteUI){noteUI.q=e.target.value;fillNoteList()}});
 showLock();
+</script>
+<script>
+/* ───────── FlowVault Library: 3D shelves, encrypted PDF storage, reader and annotation tools ───────── */
+(()=>{
+'use strict';
+const CDN='https://cdnjs.cloudflare.com/ajax/libs/';
+const L={books:[],q:'',sort:'added',cur:null,libsP:null,dbP:null,penOnly:false,inv:false,open:false,detail:null};
+const COLORS=['#ffd84d','#ff6b6b','#5fe08f','#5aa9ff','#1f1f1f'];
+const q$=(s,r=document)=>r.querySelector(s);
+const hash=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
+const kb=n=>n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';
+function msg(t,ms=3200){const m=document.createElement('div');m.className='msg';m.setAttribute('role','status');m.textContent=t;document.body.append(m);setTimeout(()=>m.remove(),ms)}
+
+/* ── encrypted storage (IndexedDB). Every record is AES-GCM encrypted with the vault key. ── */
+const db=()=>L.dbP||(L.dbP=new Promise((ok,no)=>{const r=indexedDB.open('flowvault-lib',1);r.onupgradeneeded=()=>{for(const s of ['meta','data','ann'])r.result.createObjectStore(s)};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}));
+const rq=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+const done=t=>new Promise((ok,no)=>{t.oncomplete=ok;t.onerror=()=>no(t.error);t.onabort=()=>no(t.error)});
+const idbGet=async(s,k)=>rq((await db()).transaction(s).objectStore(s).get(k));
+const idbPut=async(s,k,v)=>{const t=(await db()).transaction(s,'readwrite');t.objectStore(s).put(v,k);return done(t)};
+const idbDel=async k=>{const t=(await db()).transaction(['meta','data','ann'],'readwrite');for(const s of ['meta','data','ann'])t.objectStore(s).delete(k);return done(t)};
+const idbAll=async s=>{const st=(await db()).transaction(s).objectStore(s);const [ks,vs]=await Promise.all([rq(st.getAllKeys()),rq(st.getAll())]);return ks.map((k,i)=>({k,v:vs[i]}))};
+const encB=async b=>{const iv=crypto.getRandomValues(new Uint8Array(12));return{iv,ct:await crypto.subtle.encrypt({name:'AES-GCM',iv},key,b)}};
+const decB=r=>crypto.subtle.decrypt({name:'AES-GCM',iv:r.iv},key,r.ct);
+const encJ=o=>encB(enc.encode(JSON.stringify(o)));
+const decJ=async r=>JSON.parse(dec.decode(await decB(r)));
+const saveMeta=async b=>idbPut('meta',b.id,await encJ(b));
+async function loadBooks(){
+ const rows=await idbAll('meta'),out=[];
+ for(const r of rows){try{out.push(await decJ(r.v))}catch{}}
+ L.books=out;
+}
+
+/* ── PDF libraries: loaded on first use, from this site first, then a CDN ── */
+function loadScript(srcs){return new Promise((ok,no)=>{let i=0;const next=()=>{if(i>=srcs.length)return no(new Error('Could not load '+srcs[0]));const s=document.createElement('script');s.src=srcs[i++];s.onload=()=>ok();s.onerror=()=>{s.remove();next()};document.head.append(s)};next()})}
+function libs(){
+ if(L.libsP)return L.libsP;
+ L.libsP=(async()=>{
+  await Promise.all([loadScript(['lib-pdf.min.js',CDN+'pdf.js/3.11.174/pdf.min.js']),loadScript(['lib-pdf-lib.min.js',CDN+'pdf-lib/1.17.1/pdf-lib.min.js'])]);
+  let w=null;
+  for(const u of ['lib-pdf.worker.min.js',CDN+'pdf.js/3.11.174/pdf.worker.min.js']){try{const r=await fetch(u);if(r.ok){w=URL.createObjectURL(new Blob([await r.text()],{type:'text/javascript'}));break}}catch{}}
+  if(!w)throw new Error('Could not load the PDF engine');
+  pdfjsLib.GlobalWorkerOptions.workerSrc=w;
+ })();
+ L.libsP.catch(()=>{L.libsP=null});
+ return L.libsP;
+}
+
+/* ── colour + geometry of a book ── */
+function rgb2hsl(r,g,b){r/=255;g/=255;b/=255;const m=Math.max(r,g,b),n=Math.min(r,g,b),l=(m+n)/2;let h=0,s=0;if(m!==n){const d=m-n;s=l>.5?d/(2-m-n):d/(m+n);h=m===r?(g-b)/d+(g<b?6:0):m===g?(b-r)/d+2:(r-g)/d+4;h*=60}return{h,s,l}}
+function pickColor(cv,title){
+ const c=document.createElement('canvas');c.width=c.height=8;const x=c.getContext('2d');x.drawImage(cv,0,0,8,8);const d=x.getImageData(0,0,8,8).data;
+ let r=0,g=0,b=0;for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2]}const n=d.length/4;
+ let {h,s,l}=rgb2hsl(r/n,g/n,b/n);
+ if(s<.18)h=hash(title)%360;
+ return{h:Math.round(h),s:Math.min(.62,Math.max(.38,s)),l:Math.min(.36,Math.max(.22,l*.55))};
+}
+const dims=(b,k=1)=>{
+ const t=Math.round(Math.max(17,Math.min(58,10+b.pages*.55))*k),
+  h=Math.round((136+(hash(b.id)%4)*11+(b.aspect<.62?14:0))*k),
+  d=Math.round(Math.max(72,Math.min(128,h*b.aspect))*(k>1?1:1));
+ return{t,h,d};
+};
+const spineFont=(title,t,h)=>{const avail=h-44,len=Math.max(1,[...title].length);return Math.round(Math.max(9,Math.min(t*.34+2,avail/(len*.56)))*10)/10};
+const spineText=(title,t,h)=>{const avail=h-44,max=Math.floor(avail/(9*.56)),a=[...title];return a.length>max?a.slice(0,Math.max(3,max-1)).join('').trim()+'…':title};
+function bookEl(b,k=1,tag='button'){
+ const {t,h,d}=dims(b,k),c=b.color||{h:30,s:.4,l:.3},hs=(l)=>`hsl(${c.h} ${Math.round(c.s*100)}% ${Math.round(l*100)}%)`;
+ const pct=b.page&&b.pages?Math.min(100,Math.round(100*(b.page-1)/Math.max(1,b.pages-1))):0;
+ const el=document.createElement(tag);
+ el.dataset.id=b.id;
+ el.style.cssText=`--t:${t}px;--h:${h}px;--d:${d}px;--c:${hs(c.l)};--cd:${hs(c.l*.62)};--cl:${hs(Math.min(.55,c.l*1.28))};--ink:#f4e6c6`;
+ el.innerHTML=`<div class="bk" style="--t:${t}px;--h:${h}px;--d:${d}px;--c:${hs(c.l)};--cd:${hs(c.l*.62)};--cl:${hs(Math.min(.55,c.l*1.28))};--ink:#f4e6c6">
+  <div class="f sp"><span class="priv" style="font-size:${spineFont(b.title,t,h)}px">${esc(spineText(b.title,t,h))}</span><i style="width:${pct}%"></i></div><div class="f bs"></div>
+  <div class="f fc" style="background-image:url(${b.cover})"></div><div class="f bc"></div><div class="f tp"></div></div>`;
+ return el;
+}
+
+/* ── library screen ── */
+function layoutRows(avail,list,k){
+ const rows=[[]];let used=0;
+ for(const b of list){const w=dims(b,k).t+1;if(used+w>avail&&rows.at(-1).length){rows.push([]);used=0}rows.at(-1).push(b);used+=w}
+ while(rows.length<3||rows.at(-1).length)rows.push([]);
+ return rows.slice(0,Math.max(3,rows.length));
+}
+function sorted(){
+ const ql=L.q.trim().toLowerCase();
+ let a=L.books.filter(b=>!ql||b.title.toLowerCase().includes(ql));
+ if(L.sort==='title')a.sort((x,y)=>x.title.localeCompare(y.title));
+ else if(L.sort==='recent')a.sort((x,y)=>(y.last||0)-(x.last||0));
+ else a.sort((x,y)=>x.added-y.added);
+ return a;
+}
+function drawLib(){
+ let w=q$('#lib');
+ if(!key||!L.open){if(w)w.remove();return}
+ if(!w){w=document.createElement('div');w.id='lib';w.className='web';w.setAttribute('role','dialog');w.setAttribute('aria-label','Library');document.body.append(w);
+  w.innerHTML=`<div class="tabs"><b style="padding:0 6px">Library</b><span class="mute" id="lcount"></span>
+   <label class="btn" for="lfile" style="padding:6px 12px;cursor:pointer">+ Add PDF</label><input id="lfile" type="file" accept="application/pdf,.pdf" multiple hidden>
+   <input type="search" id="lq" placeholder="Search books" aria-label="Search books" autocomplete="off">
+   <select id="lsort" aria-label="Sort"><option value="added">Added</option><option value="title">Title</option><option value="recent">Recent</option></select>
+   <button class="ghost" data-l="lclose">Done</button></div>
+   <div class="room" id="room"><div class="rows" id="lrows"></div></div>`;}
+ w.className='web'+(privacy?' blur':'');
+ w.style.bottom=session?'84px':'0';
+ fillLib();
+}
+function fillLib(){
+ const w=q$('#lib');if(!w)return;
+ const room=q$('#room'),rows=q$('#lrows');
+ const bytes=L.books.reduce((a,b)=>a+(b.size||0),0);
+ q$('#lcount').textContent=L.books.length?L.books.length+(L.books.length===1?' book':' books')+' · '+kb(bytes)+(L.persisted===true?' · saved on this device':L.persisted===false?' · storage may be cleared by iOS':''):'';
+ q$('#lsort').value=L.sort;
+ const k=room.clientWidth<520?.8:1,shelfW=Math.min(980,room.clientWidth-16);
+ const list=sorted(),R=layoutRows(shelfW-34,list,k);
+ rows.innerHTML='';
+ if(!L.books.length){const e=document.createElement('div');e.className='lempty';e.innerHTML='<b>Your library is empty</b><p>Tap “+ Add PDF” to put your first book on the shelf. Books are encrypted on this device with your vault key.</p>';rows.append(e)}
+ for(const row of R){
+  const s=document.createElement('div');s.className='shelf';s.style.width=shelfW+'px';s.style.height=Math.round(212*k)+'px';
+  s.innerHTML='<div class="back"></div><div class="sl"></div><div class="sr"></div><div class="floor"></div><div class="plank"></div><div class="books"></div>';
+  const bs=q$('.books',s);
+  for(const b of row){const el=bookEl(b,k,'button');el.className='slot';el.setAttribute('aria-label','Open '+b.title);el.dataset.l='bopen';bs.append(el)}
+  rows.append(s);
+ }
+}
+
+/* ── adding books ── */
+async function coverOf(doc){
+ const p=await doc.getPage(1),v1=p.getViewport({scale:1}),sc=300/v1.width,vp=p.getViewport({scale:sc});
+ const cv=document.createElement('canvas');cv.width=Math.round(vp.width);cv.height=Math.round(vp.height);
+ const cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);
+ await p.render({canvasContext:cx,viewport:vp}).promise;
+ return{cv,aspect:v1.width/v1.height,thumb:cv.toDataURL('image/jpeg',.8)};
+}
+async function addOne(file){
+ await libs();
+ const buf=await file.arrayBuffer();
+ if(new TextDecoder().decode(new Uint8Array(buf,0,Math.min(1024,buf.byteLength))).indexOf('%PDF-')<0)throw new Error(file.name+' is not a PDF');
+ let doc;
+ try{doc=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise}
+ catch(e){throw new Error(e&&e.name==='PasswordException'?file.name+' is password-protected. Remove its password first, then add it.':file.name+' could not be opened')}
+ const c=await coverOf(doc);
+ let title='';try{const m=await doc.getMetadata();title=(m.info&&m.info.Title||'').trim()}catch{}
+ if(title.length<2)title=file.name.replace(/\.pdf$/i,'');
+ const id='bk'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+ const meta={id,title:title.slice(0,120),pages:doc.numPages,size:buf.byteLength,added:Date.now(),last:null,page:1,zoom:1,aspect:c.aspect,cover:c.thumb,color:pickColor(c.cv,title)};
+ doc.destroy();
+ await idbPut('data',id,await encB(buf));
+ await saveMeta(meta);
+ L.books.push(meta);
+}
+async function addFiles(files){
+ const list=[...files];if(!list.length)return;
+ msg('Encrypting and adding '+list.length+(list.length>1?' books…':' book…'),20000);
+ let ok=0;
+ for(const f of list){try{await addOne(f);ok++;fillLib()}catch(e){msg(e.message||'Could not add the file',5000)}}
+ document.querySelectorAll('.msg').forEach(m=>{if(/^Encrypting/.test(m.textContent))m.remove()});
+ if(ok)msg(ok+(ok>1?' books added':' book added'));
+ fillLib();
+}
+
+/* ── book detail (pull a book off the shelf) ── */
+function showDetail(id){
+ const b=L.books.find(x=>x.id===id);if(!b)return;
+ L.detail={id,confirm:false};
+ const w=q$('#lib');let d=q$('.bdet',w);if(d)d.remove();
+ d=document.createElement('div');d.className='bdet';
+ const pct=b.page?Math.round(100*(b.page-1)/Math.max(1,b.pages-1)):0;
+ d.innerHTML=`<div class="stage" id="stage"></div>
+  <input class="ttl priv" id="ltitle" value="${esc(b.title)}" aria-label="Title" maxlength="120">
+  <div class="meta">${b.pages} pages · ${kb(b.size)}${b.last?' · last read '+new Date(b.last).toLocaleDateString():''}</div>
+  <div class="bar2" aria-label="Progress"><i style="width:${pct}%"></i></div>
+  <div class="acts"><button class="btn" data-l="bread">${b.last?'Continue reading':'Read'}</button><button class="ghost" data-l="bexport">Save a copy</button><button class="ghost" data-l="bdel" id="bdel">Delete</button><button class="ghost" data-l="bclose">Close</button></div>`;
+ w.append(d);
+ const el=bookEl(b,1.75,'div');el.className='';const bk=q$('.bk',el);bk.classList.add('spin');q$('#stage',d).append(bk);
+ // drag to spin the book
+ const st=q$('#stage',d);let ry=-40,rx=-8,sx=0,sy=0,drag=false;
+ st.onpointerdown=e=>{drag=true;sx=e.clientX;sy=e.clientY;bk.classList.remove('spin');bk.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;st.setPointerCapture(e.pointerId)};
+ st.onpointermove=e=>{if(!drag)return;ry+=(e.clientX-sx)*.6;rx=Math.max(-50,Math.min(30,rx-(e.clientY-sy)*.4));sx=e.clientX;sy=e.clientY;bk.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`};
+ st.onpointerup=st.onpointercancel=()=>{drag=false};
+ q$('#ltitle',d).onchange=async e=>{const v=e.target.value.trim();if(v&&v!==b.title){b.title=v.slice(0,120);await saveMeta(b);fillLib()}else e.target.value=b.title};
+}
+function closeDetail(){const d=q$('#lib .bdet');if(d)d.remove();L.detail=null}
+
+/* ── reader ── */
+const RS=()=>q$('#rs');
+const ZMIN=.5,ZMAX=3.5;
+async function openBook(id){
+ const b=L.books.find(x=>x.id===id);if(!b)return;
+ try{
+  await libs();
+  const rec=await idbGet('data',id);if(!rec)throw new Error('Book data is missing');
+  const bytes=new Uint8Array(await decB(rec));
+  let ann={};try{const a=await idbGet('ann',id);if(a)ann=await decJ(a)}catch{}
+  L.cur={b,bytes,ann,doc:null,sizes:[],tool:'hand',color:COLORS[0],size:1,undo:[],redo:[],zoom:b.zoom||1,obs:null,queue:[],busy:0,text:[],rtok:0,saveT:0,sTok:0};
+  await openDoc();
+  b.last=Date.now();saveMeta(b);
+  closeDetail();drawReader();
+ }catch(e){msg(e.message||'Could not open this book',5000)}
+}
+async function openDoc(){
+ const c=L.cur;if(c.doc){try{c.doc.destroy()}catch{}}
+ c.doc=await pdfjsLib.getDocument({data:c.bytes.slice()}).promise;
+ c.b.pages=c.doc.numPages;
+ const p1=await c.doc.getPage(1),v=p1.getViewport({scale:1});
+ c.sizes=Array.from({length:c.doc.numPages},()=>({w:v.width,h:v.height}));
+ c.sizes[0]={w:v.width,h:v.height};c.text=[];
+ (async()=>{const tok=++c.sTok;for(let i=1;i<c.doc.numPages;i++){if(tok!==c.sTok||L.cur!==c)return;try{const p=await c.doc.getPage(i+1),vv=p.getViewport({scale:1});const s=c.sizes[i];if(Math.abs(s.w-vv.width)>1||Math.abs(s.h-vv.height)>1){c.sizes[i]={w:vv.width,h:vv.height};const el=q$(`#rs .pg[data-i="${i}"]`);if(el)el.style.aspectRatio=vv.width+'/'+vv.height}}catch{}if(i%25===0)await new Promise(r=>setTimeout(r));}})();
+}
+function pageW(){const rs=RS();return Math.max(200,Math.round((rs.clientWidth-16)*L.cur.zoom))}
+function drawReader(){
+ const c=L.cur;let w=q$('#rd');if(w)w.remove();
+ w=document.createElement('div');w.id='rd';w.className='web';w.setAttribute('role','dialog');w.setAttribute('aria-label','Reader');
+ w.style.bottom=session?'84px':'0';
+ const tb=(t,l)=>`<button class="ghost tool${t==='hand'?' on':''}" data-l="tool" data-t="${t}">${l}</button>`;
+ w.innerHTML=`<div class="rbar"><button class="ghost" data-l="rclose" aria-label="Back to library">‹<span class="lbl"> Library</span></button><b class="rt priv">${esc(c.b.title)}</b><button class="ghost tn" data-l="rgoto" id="rpg">1 / ${c.doc.numPages}</button><button class="ghost" data-l="rsearch" aria-label="Search in book">🔍<span class="lbl"> Search</span></button><button class="ghost" data-l="zout" aria-label="Zoom out">−</button><button class="ghost" data-l="zin" aria-label="Zoom in">+</button><button class="ghost" data-l="rmore" aria-label="More">⋯</button></div>
+ <div class="rbar">${tb('hand','Read')}${tb('hl','Highlight')}${tb('pen','Pen')}${tb('text','Text')}${tb('erase','Erase')}<span class="rsep"></span>${COLORS.map((x,i)=>`<button class="sw${i?'':' on'}" data-l="color" data-c="${x}" style="background:${x}" aria-label="Colour ${i+1}"></button>`).join('')}<select id="rsize" aria-label="Size"><option value="0">Thin</option><option value="1" selected>Medium</option><option value="2">Thick</option></select><span class="rsep"></span><button class="ghost" data-l="undo">Undo</button><button class="ghost" data-l="redo">Redo</button></div>
+ <div class="rscroll${L.inv?' inv':''}" id="rs"></div>`;
+ document.body.append(w);
+ const rs=RS();rs.style.setProperty('--pw',pageW()+'px');
+ const n=c.doc.numPages;
+ for(let i=0;i<n;i++){
+  const pg=document.createElement('div');pg.className='pg';pg.dataset.i=i;pg.style.aspectRatio=c.sizes[i].w+'/'+c.sizes[i].h;
+  pg.innerHTML='<canvas class="pc"></canvas><canvas class="ac"></canvas><span class="pn">'+(i+1)+'</span>';rs.append(pg);
+ }
+ setupObserver();
+ bindDraw();
+ rs.addEventListener('scroll',onScroll,{passive:true});
+ const first=Math.max(0,(c.b.page||1)-1);
+ requestAnimationFrame(()=>{const t=q$(`#rs .pg[data-i="${first}"]`);if(t)rs.scrollTop=t.offsetTop-8;updatePg()});
+}
+function setupObserver(){
+ const c=L.cur,rs=RS();
+ if(c.obs)c.obs.disconnect();
+ c.obs=new IntersectionObserver(es=>{
+  for(const e of es){const pg=e.target,i=+pg.dataset.i;
+   if(e.isIntersecting)queueRender(i);
+   else release(pg,i);
+  }
+ },{root:rs,rootMargin:'120% 0px'});
+ rs.querySelectorAll('.pg').forEach(p=>c.obs.observe(p));
+}
+function queueRender(i){const c=L.cur;if(!c||c.queue.includes(i))return;c.queue.push(i);pump()}
+function pump(){
+ const c=L.cur;if(!c)return;
+ while(c.busy<2&&c.queue.length){const i=c.queue.shift();c.busy++;renderPage(i).catch(()=>{}).finally(()=>{c.busy--;pump()})}
+}
+function release(pg,i){
+ const c=L.cur;if(!c)return;
+ c.queue=c.queue.filter(x=>x!==i);
+ if(pg._task){try{pg._task.cancel()}catch{}pg._task=null}
+ const pc=q$('.pc',pg),ac=q$('.ac',pg);
+ if(pc&&pc.width){pc.width=0;pc.height=0;pg.dataset.r=''}
+ if(ac&&ac.width){ac.width=0;ac.height=0}
+}
+async function renderPage(i){
+ const c=L.cur;if(!c)return;
+ const pg=q$(`#rs .pg[data-i="${i}"]`);if(!pg)return;
+ const cssW=pg.clientWidth||pageW();
+ const key2=cssW+'|'+c.rtok;if(pg.dataset.r===key2&&q$('.pc',pg).width)return;
+ const page=await c.doc.getPage(i+1);if(L.cur!==c||!pg.isConnected)return;
+ const v1=page.getViewport({scale:1});
+ c.sizes[i]={w:v1.width,h:v1.height};pg.style.aspectRatio=v1.width+'/'+v1.height;
+ let sc=cssW/v1.width*Math.min(devicePixelRatio||1,2);
+ const px=v1.width*sc*v1.height*sc;if(px>12e6)sc*=Math.sqrt(12e6/px);
+ const vp=page.getViewport({scale:sc}),pc=q$('.pc',pg);
+ pc.width=Math.round(vp.width);pc.height=Math.round(vp.height);
+ const cx=pc.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,pc.width,pc.height);
+ const task=page.render({canvasContext:cx,viewport:vp});pg._task=task;
+ try{await task.promise}catch(e){if(e&&e.name==='RenderingCancelledException')return;throw e}
+ pg._task=null;pg.dataset.r=key2;
+ drawAnn(i);
+}
+function rerenderAll(){const c=L.cur;c.rtok++;const rs=RS();rs.querySelectorAll('.pg').forEach(pg=>{const i=+pg.dataset.i;pg.dataset.r='';const r=pg.getBoundingClientRect(),b=rs.getBoundingClientRect();if(r.bottom>b.top-b.height&&r.top<b.bottom+b.height)queueRender(i)})}
+function curPage(){
+ const rs=RS();if(!rs)return 1;const pgs=rs.querySelectorAll('.pg'),mid=rs.scrollTop+rs.clientHeight*.3;
+ let lo=0,hi=pgs.length-1;while(lo<hi){const m=(lo+hi+1)>>1;if(pgs[m].offsetTop<=mid)lo=m;else hi=m-1}
+ return lo+1;
+}
+function updatePg(){const c=L.cur;if(!c)return;const p=curPage(),b=q$('#rpg');if(b)b.textContent=p+' / '+c.doc.numPages;return p}
+let scrollT=0;
+function onScroll(){
+ const c=L.cur;if(!c)return;const p=updatePg();clearTimeout(scrollT);
+ scrollT=setTimeout(()=>{if(L.cur===c&&c.b.page!==p){c.b.page=p;c.b.last=Date.now();saveMeta(c.b).catch(()=>{})}},700);
+}
+function goPage(p){const c=L.cur,rs=RS();p=Math.max(1,Math.min(c.doc.numPages,p));const t=q$(`#rs .pg[data-i="${p-1}"]`);if(t)rs.scrollTop=t.offsetTop-8}
+function setZoom(z){
+ const c=L.cur,rs=RS();z=Math.max(ZMIN,Math.min(ZMAX,Math.round(z*100)/100));if(z===c.zoom)return;
+ const ratio=rs.scrollTop/Math.max(1,rs.scrollHeight);
+ c.zoom=z;c.b.zoom=z;rs.style.setProperty('--pw',pageW()+'px');
+ rs.scrollTop=ratio*rs.scrollHeight;rerenderAll();saveMeta(c.b).catch(()=>{});
+}
+
+/* ── annotations ──
+   objects: {t:'pen',c,w,p:[[x,y]..]}  {t:'hl',c,r:[x,y,w,h]}  {t:'tx',c,fs,x,y,s}
+   positions are 0..1 of the displayed page; widths and font sizes are PDF points. */
+const PEN_W=[1.5,3,6],TXT_S=[11,15,22];
+function drawAnn(i,live){
+ const c=L.cur;if(!c)return;const pg=q$(`#rs .pg[data-i="${i}"]`);if(!pg)return;
+ const pc=q$('.pc',pg),ac=q$('.ac',pg);if(!pc.width)return;
+ if(ac.width!==pc.width||ac.height!==pc.height){ac.width=pc.width;ac.height=pc.height}
+ const cx=ac.getContext('2d'),W=ac.width,H=ac.height,s=W/c.sizes[i].w;
+ cx.clearRect(0,0,W,H);
+ const list=(c.ann[i]||[]).concat(live?[live]:[]);
+ for(const o of list){
+  if(o.t==='hl'){cx.globalAlpha=.38;cx.fillStyle=o.c;cx.fillRect(o.r[0]*W,o.r[1]*H,o.r[2]*W,o.r[3]*H);cx.globalAlpha=1}
+  else if(o.t==='pen'){cx.strokeStyle=o.c;cx.lineWidth=o.w*s;cx.lineCap=cx.lineJoin='round';cx.beginPath();const p=o.p;cx.moveTo(p[0][0]*W,p[0][1]*H);
+   if(p.length===1)cx.lineTo(p[0][0]*W+.01,p[0][1]*H);
+   for(let k=1;k<p.length-1;k++){const mx=(p[k][0]+p[k+1][0])/2*W,my=(p[k][1]+p[k+1][1])/2*H;cx.quadraticCurveTo(p[k][0]*W,p[k][1]*H,mx,my)}
+   if(p.length>1)cx.lineTo(p.at(-1)[0]*W,p.at(-1)[1]*H);cx.stroke()}
+  else if(o.t==='tx'){cx.fillStyle=o.c;cx.textBaseline='top';cx.font=`${o.fs*s}px -apple-system,"Segoe UI",system-ui,sans-serif`;o.s.split('\n').forEach((ln,k)=>cx.fillText(ln,o.x*W,o.y*H+k*o.fs*s*1.2))}
+ }
+}
+function bbox(i,o){
+ const c=L.cur,pg=q$(`#rs .pg[data-i="${i}"]`),W=pg.clientWidth,H=pg.clientHeight,s=W/c.sizes[i].w;
+ if(o.t==='hl')return[o.r[0]*W,o.r[1]*H,o.r[2]*W,o.r[3]*H];
+ if(o.t==='tx'){const ls=o.s.split('\n'),mw=Math.max(...ls.map(l=>l.length))*o.fs*s*.55;return[o.x*W,o.y*H,mw,ls.length*o.fs*s*1.2]}
+ return null;
+}
+function hit(i,o,px,py){
+ const pg=q$(`#rs .pg[data-i="${i}"]`),W=pg.clientWidth,H=pg.clientHeight,pad=10;
+ if(o.t==='pen'){const r=pad+o.w*W/L.cur.sizes[i].w/2;for(let k=0;k<o.p.length;k++){const ax=o.p[k][0]*W,ay=o.p[k][1]*H;
+   if(Math.hypot(ax-px,ay-py)<r)return true;
+   if(k){const bx=o.p[k-1][0]*W,by=o.p[k-1][1]*H,dx=ax-bx,dy=ay-by,l2=dx*dx+dy*dy||1,t=Math.max(0,Math.min(1,((px-bx)*dx+(py-by)*dy)/l2));if(Math.hypot(bx+t*dx-px,by+t*dy-py)<r)return true}}
+  return false}
+ const b=bbox(i,o);return px>=b[0]-pad&&px<=b[0]+b[2]+pad&&py>=b[1]-pad&&py<=b[1]+b[3]+pad;
+}
+async function saveAnn(){
+ const c=L.cur;if(!c||!key)return;
+ try{await idbPut('ann',c.b.id,await encJ(c.ann))}catch{}
+}
+function pushAct(a){const c=L.cur;c.undo.push(a);if(c.undo.length>200)c.undo.shift();c.redo=[]}
+function addObj(i,o){const c=L.cur;(c.ann[i]=c.ann[i]||[]).push(o);pushAct({k:'add',i,o});drawAnn(i);saveAnn()}
+function delObj(i,o,record=true){const c=L.cur,l=c.ann[i]||[],at=l.indexOf(o);if(at<0)return;l.splice(at,1);if(!l.length)delete c.ann[i];if(record)pushAct({k:'del',i,o,at});drawAnn(i);saveAnn()}
+function undo(){const c=L.cur,a=c.undo.pop();if(!a)return;
+ if(a.k==='add'){const l=c.ann[a.i]||[],at=l.indexOf(a.o);if(at>=0){l.splice(at,1);if(!l.length)delete c.ann[a.i]}}
+ else{(c.ann[a.i]=c.ann[a.i]||[]).splice(Math.min(a.at,(c.ann[a.i]||[]).length),0,a.o)}
+ c.redo.push(a);drawAnn(a.i);saveAnn()}
+function redo(){const c=L.cur,a=c.redo.pop();if(!a)return;
+ if(a.k==='add'){(c.ann[a.i]=c.ann[a.i]||[]).push(a.o)}
+ else{const l=c.ann[a.i]||[],at=l.indexOf(a.o);if(at>=0){l.splice(at,1);if(!l.length)delete c.ann[a.i]}}
+ c.undo.push(a);drawAnn(a.i);saveAnn()}
+function setTool(t){
+ const c=L.cur,rs=RS();c.tool=t;
+ document.querySelectorAll('#rd .tool').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+ rs.classList.toggle('tool',t!=='hand');rs.classList.toggle('pen',L.penOnly);
+}
+function bindDraw(){
+ const rs=RS();let st=null;
+ const pos=(e,ac)=>{const r=ac.getBoundingClientRect();return[Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))]};
+ rs.addEventListener('pointerdown',e=>{
+  const c=L.cur,ac=e.target.closest&&e.target.closest('.ac');if(!ac||c.tool==='hand')return;
+  if(L.penOnly&&e.pointerType==='touch')return;
+  const pg=ac.parentElement,i=+pg.dataset.i;
+  if(e.target.classList&&e.target.classList.contains('ti'))return;
+  e.preventDefault();ac.setPointerCapture(e.pointerId);
+  const p=pos(e,ac);
+  if(c.tool==='pen')st={i,o:{t:'pen',c:c.color,w:PEN_W[c.size],p:[p]},ac};
+  else if(c.tool==='hl')st={i,o:{t:'hl',c:c.color,r:[p[0],p[1],0,0]},a:p,ac};
+  else if(c.tool==='erase')st={i,ac,erased:false,rect:ac.getBoundingClientRect()};
+  else if(c.tool==='text')st={i,ac,p,txt:true};
+  if(st&&c.tool==='erase')eraseAt(st,e);
+ });
+ rs.addEventListener('pointermove',e=>{
+  if(!st||st.txt)return;
+  if(st.o&&st.o.t==='pen'){const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];for(const ev of (evs.length?evs:[e]))st.o.p.push(pos(ev,st.ac));drawAnn(st.i,st.o)}
+  else if(st.o&&st.o.t==='hl'){const p=pos(e,st.ac);st.o.r=[Math.min(st.a[0],p[0]),Math.min(st.a[1],p[1]),Math.abs(p[0]-st.a[0]),Math.abs(p[1]-st.a[1])];drawAnn(st.i,st.o)}
+  else if(L.cur.tool==='erase')eraseAt(st,e);
+ });
+ const end=e=>{
+  if(!st)return;const s=st;st=null;const c=L.cur;
+  if(s.txt){startText(s.i,s.p);return}
+  if(s.o){
+   if(s.o.t==='hl'&&(s.o.r[2]<.01||s.o.r[3]<.004)){drawAnn(s.i);return}
+   addObj(s.i,s.o);
+  }
+ };
+ rs.addEventListener('pointerup',end);rs.addEventListener('pointercancel',()=>{if(st){const s=st;st=null;drawAnn(s.i)}});
+}
+function eraseAt(s,e){
+ if(!s)return;const r=s.ac.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top,list=(L.cur.ann[s.i]||[]).slice();
+ for(const o of list.reverse()){if(hit(s.i,o,px,py)){delObj(s.i,o);break}}
+}
+function startText(i,p){
+ const c=L.cur,pg=q$(`#rs .pg[data-i="${i}"]`),W=pg.clientWidth,s=W/c.sizes[i].w,fs=TXT_S[c.size];
+ pg.querySelectorAll('.ti').forEach(t=>t.blur());
+ const t=document.createElement('textarea');t.className='ti';t.rows=1;t.setAttribute('aria-label','Text note');
+ t.style.cssText=`left:${p[0]*W}px;top:${p[1]*pg.clientHeight}px;font-size:${fs*s}px;color:${c.color==='#ffd84d'?'#7a5a00':c.color}`;
+ pg.append(t);t.focus();
+ const grow=()=>{t.style.height='auto';t.style.height=t.scrollHeight+'px';t.cols=Math.max(10,Math.max(...t.value.split('\n').map(l=>l.length))+1)};
+ t.oninput=grow;grow();
+ let fin=false;
+ const commit=()=>{if(fin)return;fin=true;const v=t.value.replace(/\s+$/,'');t.remove();if(v)addObj(i,{t:'tx',c:c.color,fs,x:p[0],y:p[1],s:v})};
+ t.onblur=commit;t.onkeydown=e=>{if(e.key==='Escape'){t.value='';t.blur()}};
+}
+
+/* ── editing the PDF: rotate / delete a page ── */
+async function persistBytes(){
+ const c=L.cur;
+ await idbPut('data',c.b.id,await encB(c.bytes));
+ await openDoc();
+ const cv=await coverOf(c.doc);c.b.cover=cv.thumb;c.b.aspect=cv.aspect;c.b.color=pickColor(cv.cv,c.b.title);
+ c.b.size=c.bytes.byteLength;await saveMeta(c.b);await saveAnn();
+}
+function rotPt(o){ // rotate annotation 90° clockwise
+ const f=([x,y])=>[1-y,x];
+ if(o.t==='pen')o.p=o.p.map(f);
+ else if(o.t==='hl'){const a=f([o.r[0],o.r[1]]),b=f([o.r[0]+o.r[2],o.r[1]+o.r[3]]);o.r=[Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1])]}
+ else if(o.t==='tx'){const a=f([o.x,o.y]);o.x=Math.max(0,Math.min(.9,a[0]-.15));o.y=Math.max(0,Math.min(.95,a[1]))}
+}
+async function pageOp(kind){
+ const c=L.cur,i=curPage()-1;closeMenu();
+ msg(kind==='rot'?'Rotating page '+(i+1)+'…':'Deleting page '+(i+1)+'…',20000);
+ try{
+  const pdf=await PDFLib.PDFDocument.load(c.bytes,{ignoreEncryption:true});
+  if(kind==='rot'){const p=pdf.getPage(i);p.setRotation(PDFLib.degrees((p.getRotation().angle+90)%360));(c.ann[i]||[]).forEach(rotPt)}
+  else{
+   if(pdf.getPageCount()<2){msg('A book needs at least one page');return}
+   pdf.removePage(i);delete c.ann[i];
+   const n={};for(const k of Object.keys(c.ann)){const j=+k;n[j>i?j-1:j]=c.ann[k]}c.ann=n;
+  }
+  c.bytes=new Uint8Array(await pdf.save());c.undo=[];c.redo=[];
+  await persistBytes();
+  const keep=Math.min(i,c.doc.numPages-1);
+  drawReader();goPage(keep+1);
+ }catch(e){msg('That edit failed: '+(e.message||e),5000)}
+ document.querySelectorAll('.msg').forEach(m=>{if(/^(Rotating|Deleting)/.test(m.textContent))m.remove()});
+}
+
+/* ── export: burn annotations into a new PDF ── */
+function hexRgb(h){const n=parseInt(h.slice(1),16);return PDFLib.rgb((n>>16&255)/255,(n>>8&255)/255,(n&255)/255)}
+function toUser(page,u,v){
+ const {width:W,height:H}=page.getSize(),r=((page.getRotation().angle%360)+360)%360;
+ const dw=r%180?H:W,dh=r%180?W:H,dx=u*dw,dy=v*dh;
+ if(r===90)return[dy,dx];if(r===180)return[W-dx,dy];if(r===270)return[W-dy,H-dx];
+ return[dx,H-dy];
+}
+async function textPng(o,scale){
+ const cv=document.createElement('canvas'),cx=cv.getContext('2d'),f=o.fs*scale,font=`${f}px -apple-system,"Segoe UI",system-ui,sans-serif`;
+ cx.font=font;const ls=o.s.split('\n'),w=Math.ceil(Math.max(...ls.map(l=>cx.measureText(l).width)))+4,h=Math.ceil(ls.length*f*1.2)+4;
+ cv.width=w;cv.height=h;cx.font=font;cx.fillStyle=o.c;cx.textBaseline='top';ls.forEach((l,k)=>cx.fillText(l,2,2+k*f*1.2));
+ const bl=await new Promise(r=>cv.toBlob(r,'image/png'));return{png:new Uint8Array(await bl.arrayBuffer()),w:w/scale,h:h/scale};
+}
+async function buildExport(){
+ const c=L.cur,pdf=await PDFLib.PDFDocument.load(c.bytes,{ignoreEncryption:true}),pages=pdf.getPages();
+ for(const k of Object.keys(c.ann)){
+  const i=+k,page=pages[i];if(!page)continue;
+  const {width:W,height:H}=page.getSize(),r=((page.getRotation().angle%360)+360)%360,dw=r%180?H:W,dh=r%180?W:H;
+  for(const o of c.ann[k]){
+   if(o.t==='hl'){
+    const a=toUser(page,o.r[0],o.r[1]),b=toUser(page,o.r[0]+o.r[2],o.r[1]+o.r[3]);
+    page.drawRectangle({x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),color:hexRgb(o.c),opacity:.38,blendMode:PDFLib.BlendMode.Multiply});
+   }else if(o.t==='pen'){
+    const P=o.p.map(p=>toUser(page,p[0],p[1])),col=hexRgb(o.c);
+    if(P.length===1)P.push([P[0][0]+.01,P[0][1]]);
+    for(let j=1;j<P.length;j++)page.drawLine({start:{x:P[j-1][0],y:P[j-1][1]},end:{x:P[j][0],y:P[j][1]},thickness:o.w,color:col,lineCap:PDFLib.LineCapStyle.Round});
+   }else if(o.t==='tx'){
+    const img=await textPng(o,3),png=await pdf.embedPng(img.png);
+    // anchor = top-left of the text box on the displayed page
+    const a=toUser(page,o.x,o.y);
+    let opts={width:img.w,height:img.h};
+    if(r===0){opts.x=a[0];opts.y=a[1]-img.h}
+    else if(r===90){opts.x=a[0]+img.h;opts.y=a[1];opts.rotate=PDFLib.degrees(90)}
+    else if(r===180){opts.x=a[0];opts.y=a[1]+img.h;opts.rotate=PDFLib.degrees(180)}
+    else{opts.x=a[0]-img.h;opts.y=a[1];opts.rotate=PDFLib.degrees(270)}
+    page.drawImage(png,opts);
+   }
+  }
+ }
+ return new Uint8Array(await pdf.save());
+}
+async function deliver(bytes,name){
+ const file=new File([bytes],name,{type:'application/pdf'});
+ try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+ const u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
+}
+const safeName=t=>(t.replace(/[\\/:*?"<>|]+/g,' ').trim()||'book').slice(0,80);
+async function exportCurrent(){
+ const c=L.cur;closeMenu();msg('Preparing your PDF…',15000);
+ try{const bytes=await buildExport();await deliver(bytes,safeName(c.b.title)+(Object.keys(c.ann).length?' (annotated)':'')+'.pdf')}
+ catch(e){msg('Export failed: '+(e.message||e),5000)}
+ document.querySelectorAll('.msg').forEach(m=>{if(/^Preparing/.test(m.textContent))m.remove()});
+}
+
+/* ── search inside a book ── */
+async function pageText(i){const c=L.cur;if(c.text[i]!==undefined)return c.text[i];const p=await c.doc.getPage(i+1),t=await p.getTextContent();return c.text[i]=t.items.map(x=>x.str).join(' ').replace(/\s+/g,' ')}
+async function runSearch(qs){
+ const c=L.cur,tok=++c.sTok2||(c.sTok2=1),out=q$('#rsl'),n=c.doc.numPages,ql=qs.toLowerCase();c.sTok2=tok;
+ out.innerHTML='';let found=0;const st=q$('#rsst');
+ for(let i=0;i<n&&found<80;i++){
+  if(c.sTok2!==tok||L.cur!==c)return;
+  if(st)st.textContent='Searching… '+(i+1)+' / '+n;
+  const t=await pageText(i),at=t.toLowerCase().indexOf(ql);
+  if(at>=0){found++;const s=Math.max(0,at-35),sn=(s?'…':'')+t.slice(s,at+ql.length+55)+'…';
+   const li=document.createElement('li');li.innerHTML=`<button data-l="rhit" data-p="${i+1}"><b>p.${i+1}</b>${esc(sn)}</button>`;out.append(li)}
+ }
+ if(st)st.textContent=found?found+(found>=80?'+':'')+' pages match':'No matches. Scanned PDFs without a text layer cannot be searched.';
+}
+function toggleSearch(){
+ const w=q$('#rd'),ex=q$('.rsrch',w);if(ex){ex.remove();return}
+ const d=document.createElement('div');d.className='rsrch';
+ d.innerHTML='<form id="rsf"><input id="rsq" placeholder="Search this book" aria-label="Search this book" autocomplete="off"><button class="btn">Find</button><button type="button" class="ghost" data-l="rsearch">Close</button></form><div class="mute" id="rsst" style="padding:0 12px 6px"></div><ul id="rsl"></ul>';
+ w.append(d);q$('#rsq',d).focus();
+ q$('#rsf',d).onsubmit=e=>{e.preventDefault();const v=q$('#rsq',d).value.trim();if(v)runSearch(v)};
+}
+function closeMenu(){const m=q$('#rd .rmenu');if(m)m.remove()}
+function toggleMenu(){
+ const w=q$('#rd'),ex=q$('.rmenu',w);if(ex){ex.remove();return}
+ const m=document.createElement('div');m.className='rmenu';
+ m.innerHTML=`<button data-l="mrot">Rotate this page <span>↻</span></button><button data-l="mdel">Delete this page <span>🗑</span></button><button data-l="minv">Dark pages <span>${L.inv?'On':'Off'}</span></button><button data-l="mpen">Pencil only drawing <span>${L.penOnly?'On':'Off'}</span></button><button data-l="mexp">Export annotated PDF <span>⇪</span></button>`;
+ w.append(m);
+}
+function closeReader(){
+ const c=L.cur;
+ if(c){clearTimeout(scrollT);c.b.page=curPage();c.b.last=Date.now();c.sTok++;c.sTok2=-1;saveMeta(c.b).catch(()=>{});saveAnn();if(c.obs)c.obs.disconnect();try{c.doc.destroy()}catch{}}
+ L.cur=null;const w=q$('#rd');if(w)w.remove();
+ fillLib();
+}
+
+/* ── events ── */
+document.addEventListener('click',async e=>{
+ const el=e.target.closest&&e.target.closest('[data-l]');if(!el||!key)return;
+ const a=el.dataset.l;
+ if(a==='open'){L.open=true;drawLib();try{if(navigator.storage&&navigator.storage.persist){L.persisted=await navigator.storage.persist();fillLib()}}catch{}if(!L.loaded){L.loaded=true;try{await loadBooks();fillLib()}catch{}}}
+ else if(a==='lclose'){L.open=false;closeDetail();drawLib()}
+ else if(a==='bopen'){el.classList.add('pull');setTimeout(()=>{el.classList.remove('pull');showDetail(el.dataset.id)},240)}
+ else if(a==='bclose')closeDetail();
+ else if(a==='bread'){const id=L.detail&&L.detail.id;if(id)openBook(id)}
+ else if(a==='bexport'){const b=L.books.find(x=>x.id===(L.detail&&L.detail.id));if(!b)return;try{const rec=await idbGet('data',b.id);await deliver(new Uint8Array(await decB(rec)),safeName(b.title)+'.pdf')}catch(err){msg('Could not export: '+(err.message||err),4000)}}
+ else if(a==='bdel'){const d=L.detail;if(!d)return;if(!d.confirm){d.confirm=true;el.textContent='Tap again to delete';return}
+  await idbDel(d.id);L.books=L.books.filter(b=>b.id!==d.id);closeDetail();fillLib();msg('Book deleted')}
+ else if(a==='rclose')closeReader();
+ else if(a==='tool')setTool(el.dataset.t);
+ else if(a==='color'){L.cur.color=el.dataset.c;document.querySelectorAll('#rd .sw').forEach(s=>s.classList.toggle('on',s===el))}
+ else if(a==='undo')undo();else if(a==='redo')redo();
+ else if(a==='zin')setZoom(L.cur.zoom+.25);else if(a==='zout')setZoom(L.cur.zoom-.25);
+ else if(a==='rsearch')toggleSearch();
+ else if(a==='rhit'){goPage(+el.dataset.p);const s=q$('#rd .rsrch');if(s&&innerWidth<760)s.remove()}
+ else if(a==='rmore')toggleMenu();
+ else if(a==='mrot')pageOp('rot');else if(a==='mdel'){if(confirm('Delete this page from the book?'))pageOp('del');else closeMenu()}
+ else if(a==='minv'){L.inv=!L.inv;RS().classList.toggle('inv',L.inv);closeMenu()}
+ else if(a==='mpen'){L.penOnly=!L.penOnly;setTool(L.cur.tool);closeMenu()}
+ else if(a==='mexp')exportCurrent();
+ else if(a==='rgoto'){const w=q$('#rd'),ex=q$('.rgo',w);if(ex){ex.remove();return}
+  const g=document.createElement('form');g.className='rgo';g.innerHTML=`<input type="number" inputmode="numeric" min="1" max="${L.cur.doc.numPages}" placeholder="Page" aria-label="Go to page"><button class="btn">Go</button>`;
+  w.insertBefore(g,w.children[2]);q$('input',g).focus();g.onsubmit=ev=>{ev.preventDefault();const v=+q$('input',g).value;if(v)goPage(v);g.remove()}}
+});
+document.addEventListener('change',e=>{
+ if(e.target.id==='lfile'){addFiles(e.target.files).finally(()=>{e.target.value=''})}
+ else if(e.target.id==='lsort'){L.sort=e.target.value;fillLib()}
+ else if(e.target.id==='rsize'){L.cur.size=+e.target.value}
+});
+document.addEventListener('input',e=>{if(e.target.id==='lq'){L.q=e.target.value;fillLib()}});
+let rz=0;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(L.open&&!L.cur)fillLib();const c=L.cur;if(c&&RS()){RS().style.setProperty('--pw',pageW()+'px');rerenderAll()}},200)});
+document.addEventListener('keydown',e=>{
+ const c=L.cur;if(!c||!key)return;
+ if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!/TEXTAREA|INPUT/.test(e.target.tagName)){e.preventDefault();e.shiftKey?redo():undo()}
+});
+/* hooks the main app calls */
+window.libReset=()=>{L.open=false;L.books=[];L.loaded=false;L.detail=null;const c=L.cur;if(c){c.sTok++;c.sTok2=-1;try{c.obs&&c.obs.disconnect();c.doc&&c.doc.destroy()}catch{}}L.cur=null;for(const s of ['#lib','#rd','.msg'])document.querySelectorAll(s).forEach(n=>n.remove())};
+window.libBottom=()=>{for(const s of ['#lib','#rd']){const n=q$(s);if(n)n.style.bottom=session?'84px':'0'}};
+window.libOpen=()=>{if(key)document.querySelector('[data-l="open"]')?.click()};
+window.__lib=L;
+})();
 </script>
 </body>
 </html>

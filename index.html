@@ -184,6 +184,29 @@ textarea,select{font-size:16px}
 .rxbar .ghost.on{border-color:var(--sig);color:var(--sig)}
 nav.tools{display:contents}
 @media(max-width:760px){nav.tools{order:6;flex-basis:100%;display:flex;gap:6px;overflow-x:auto}nav.tools .ghost{flex:none}}
+
+/* ───────── Music ───────── */
+#mu{z-index:4}
+.mnow{display:grid;gap:12px;justify-items:center;padding:18px 16px 10px;background:var(--ink);border-bottom:1px solid var(--line)}
+.mart{width:min(150px,36vw);aspect-ratio:1;border-radius:18px;display:grid;place-items:center;font-size:44px;color:rgba(255,255,255,.85);box-shadow:0 14px 34px rgba(0,0,0,.45)}
+.mti{display:grid;text-align:center;gap:2px;max-width:100%;min-width:0}.mti b{font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mti span{font-size:13px}
+.mseek{display:flex;align-items:center;gap:8px;width:min(460px,100%);font-size:12px;color:var(--mute)}
+.mseek input{flex:1;min-width:0;accent-color:var(--sig)}
+.mctl{display:flex;align-items:center;gap:8px}
+.mctl .ghost{padding:9px 12px;font-size:16px}.mctl .ghost.on{border-color:var(--sig);color:var(--sig)}
+.mplay{width:56px;height:56px;border-radius:50%;padding:0;font-size:22px;display:grid;place-items:center}
+.mfocus{font-size:13px;color:var(--mute);display:flex;gap:8px;align-items:center}
+.mlist{flex:1;min-height:0;overflow-y:auto;padding:6px 0 80px;-webkit-overflow-scrolling:touch}
+.mrow{display:flex;align-items:center;gap:6px;padding:2px 10px;border-bottom:1px solid var(--line)}
+.mrow.cur{background:var(--panel)}
+.mpick,.mbo{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;padding:8px 4px;text-align:left;color:inherit}
+.mpick i,.mbo i{flex:none;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-style:normal;color:rgba(255,255,255,.9);font-size:15px}
+.mpick span,.mbo span{display:grid;min-width:0}.mpick b,.mbo b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.mpick small,.mbo small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mempty{max-width:420px;margin:7vh auto 0;text-align:center;padding:0 20px}.mempty b{display:block;font-size:18px;margin-bottom:6px}.mempty p{margin:0;color:var(--mute);font-size:14px}
+.mbar{position:fixed;left:50%;transform:translateX(-50%);width:min(640px,calc(100% - 24px));z-index:3;display:flex;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 8px;box-shadow:0 10px 30px rgba(0,0,0,.45);overflow:hidden}
+.mbar .ghost{padding:7px 9px;flex:none}.mbar .btn{padding:7px 12px;flex:none}
+.mprog{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--line)}.mprog i{display:block;height:100%;width:0;background:var(--sig)}
 </style>
 </head>
 <body>
@@ -217,7 +240,7 @@ let notes=[],noteUI=null,web=null,tabN=0,inApp=true,session=null,key=null,users=
 const root=$('#root');
 /* ── lock screen ── */
 function showLock(msg=''){
- if(window.libReset)libReset();if(window.relaxReset)relaxReset();
+ if(window.libReset)libReset();if(window.relaxReset)relaxReset();if(window.musicReset)musicReset();
  key=null;users={};palette=null;clipWipe();session=null;drawHud();web=null;drawWeb();notes=[];noteUI=null;drawNotes();
  const first=!vault;
  root.innerHTML=`<div class="lock"><form id="f"><div class="logo" style="font-size:18px">FlowVault</div>
@@ -225,7 +248,7 @@ function showLock(msg=''){
  <input id="pw" type="password" autocomplete="off" placeholder="Master password" aria-label="Master password" autofocus>
  <div class="err" id="err">${esc(msg)}</div>
  <button class="btn" style="width:100%" id="go">${first?'Create vault':'Unlock'}</button>
- ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v7 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
+ ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v8 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
  $('#f').onsubmit=async e=>{e.preventDefault();const pw=$('#pw').value;if(pw.length<4){$('#err').textContent='Use at least 4 characters.';return}
   $('#go').disabled=true;$('#go').textContent='Deriving key…';
   try{await unlock(pw)}catch{showLock('Wrong master password.')}};
@@ -258,7 +281,7 @@ function render(){
  <header><span class="logo">FlowVault</span>
  <button class="search" data-a="pal"><span>Search credentials and actions</span><kbd>⌘K</kbd></button>
  <span class="state tn" id="lk">Unlocked · locks in ${fmt(LOCK_SEC)}</span>
- <nav class="tools" aria-label="Tools"><button class="ghost" data-l="open">Library</button><button class="ghost" data-a="notes">Notes</button><button class="ghost" data-a="web">Browser</button><button class="ghost" data-r="open">Relax</button></nav><button class="btn" data-a="lock">Lock now</button></header>
+ <nav class="tools" aria-label="Tools"><button class="ghost" data-l="open">Library</button><button class="ghost" data-a="notes">Notes</button><button class="ghost" data-a="web">Browser</button><button class="ghost" data-r="open">Relax</button><button class="ghost" data-m="open">Music</button></nav><button class="btn" data-a="lock">Lock now</button></header>
  <main><section aria-label="Today's focus blocks"><h2>Today</h2><ol>
  ${blocks.map(b=>`<li class="b ${b.status}"><button class="blk ${fb&&fb.id===b.id?'sel':''}" data-a="sel" data-id="${b.id}">
   <div class="row"><b>${esc(b.title)}</b><span class="mute tn">${new Date(b.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${b.min} min</span></div>
@@ -325,7 +348,7 @@ async function clipWipe(){
 function openPalette(){palette={q:'',i:0};drawPalette()}
 function cmds(){const f=focusBlock();return[
  {l:privacy?'Turn privacy blur off':'Turn privacy blur on',run:togglePrivacy},
- {l:'Open library',run:()=>{window.libOpen&&libOpen()}},{l:'Relax with Mochi',run:()=>{window.relaxOpen&&relaxOpen()}},
+ {l:'Open library',run:()=>{window.libOpen&&libOpen()}},{l:'Relax with Mochi',run:()=>{window.relaxOpen&&relaxOpen()}},{l:'Play music',run:()=>{window.musicOpen&&musicOpen()}},
  {l:'Open in-app browser',run:()=>{web?(web.show=true,drawWeb()):openWeb('')}},
  {l:'New note',run:()=>newNote(null)},
  {l:'Open notes',run:openNotes},
@@ -379,7 +402,7 @@ async function launchWorkspace(id){
  drawHud();
 }
 function drawHud(){
- let h=$('#hud');const wb=$('#wb');if(wb)wb.style.bottom=session?'84px':'0';if(window.libBottom)libBottom();if(window.relaxBottom)relaxBottom();if(!session){if(h)h.remove();return}
+ let h=$('#hud');const wb=$('#wb');if(wb)wb.style.bottom=session?'84px':'0';if(window.libBottom)libBottom();if(window.relaxBottom)relaxBottom();if(window.musicBottom)musicBottom();if(!session){if(h)h.remove();return}
  const b=blocks.find(x=>x.id===session.id);
  if(!h){h=document.createElement('div');h.id='hud';h.className='hud';h.setAttribute('role','region');h.setAttribute('aria-label','Active session');document.body.append(h)}
  h.innerHTML=`<div class="r"><div class="t"><b>${esc(b.title)}</b><span class="mute tn" id="ht"></span></div>
@@ -1471,6 +1494,189 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&R.open)save()});
 window.__relax={get S(){return S},C,D,R,step};
+})();
+
+/* ───────── FlowVault Music: local files in IndexedDB, background playback, lock-screen controls ───────── */
+(()=>{
+'use strict';
+const q$=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hash=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
+const fmt=t=>{if(!isFinite(t)||t<0)t=0;t=Math.floor(t);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+const mb=n=>n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';
+const PKEY='fv-music';
+let pref={shuffle:false,repeat:'off',vol:1,focus:false,last:null};
+try{Object.assign(pref,JSON.parse(localStorage.getItem(PKEY)||'{}'))}catch{}
+const savePref=()=>{try{localStorage.setItem(PKEY,JSON.stringify(pref))}catch{}};
+const M={tracks:[],loaded:false,cur:-1,url:null,open:false,seeking:false,persisted:null,confirm:null,lastPos:0};
+const au=new Audio();au.preload='metadata';au.setAttribute('playsinline','');au.volume=pref.vol;
+window.__music={M,au};
+
+/* ── storage ── */
+let dbP=null;
+const db=()=>dbP||(dbP=new Promise((res,rej)=>{const r=indexedDB.open('flowvault-music',1);
+  r.onupgradeneeded=()=>r.result.createObjectStore('tracks',{keyPath:'id'});
+  r.onsuccess=()=>res(r.result);r.onerror=()=>{dbP=null;rej(r.error)}}));
+const tx=async(mode,fn)=>{const d=await db();return new Promise((res,rej)=>{const t=d.transaction('tracks',mode),s=t.objectStore('tracks');let out;try{out=fn(s)}catch(e){rej(e);return}
+  t.oncomplete=()=>res(out&&out.result!==undefined?out.result:undefined);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})};
+async function loadAll(){
+  const d=await db();
+  M.tracks=await new Promise((res,rej)=>{const out=[];const c=d.transaction('tracks').objectStore('tracks').openCursor();c.onsuccess=()=>{const k=c.result;if(k){const v=k.value;out.push({id:v.id,name:v.name,artist:v.artist,size:v.size,added:v.added,dur:v.dur||0});k.continue()}else res(out)};c.onerror=()=>rej(c.error)});
+  M.tracks.sort((a,b)=>a.added-b.added);M.loaded=true}
+const getBlob=async id=>{const d=await db();return new Promise((res,rej)=>{const r=d.transaction('tracks').objectStore('tracks').get(id);r.onsuccess=()=>res(r.result&&r.result.blob);r.onerror=()=>rej(r.error)})};
+function parseName(f){
+  let n=f.name.replace(/\.[a-z0-9]{2,5}$/i,'').replace(/[_]+/g,' ').trim();let artist='';
+  const m=n.match(/^(.{1,60}?)\s+[-–—]\s+(.+)$/);if(m){artist=m[1].trim();n=m[2].trim()}
+  return{name:n||'Untitled',artist}}
+function probe(blob){return new Promise(res=>{const a=new Audio(),u=URL.createObjectURL(blob);let done=false;
+  const fin=v=>{if(done)return;done=true;URL.revokeObjectURL(u);res(v)};
+  a.preload='metadata';a.onloadedmetadata=()=>fin({ok:true,dur:isFinite(a.duration)?a.duration:0});a.onerror=()=>fin({ok:false,dur:0});setTimeout(()=>fin({ok:true,dur:0}),6000);a.src=u})}
+async function addFiles(files){
+  let added=0,bad=0;
+  for(const f of files){
+    if(!(f.type.startsWith('audio/')||/\.(mp3|m4a|aac|wav|flac|ogg|oga|opus|aif|aiff|caf)$/i.test(f.name))){bad++;continue}
+    const p=await probe(f);if(!p.ok){bad++;continue}
+    const {name,artist}=parseName(f);
+    const rec={id:'m'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),name,artist,size:f.size,added:Date.now()+added,dur:p.dur,type:f.type,blob:f};
+    try{await tx('readwrite',s=>s.put(rec));M.tracks.push({id:rec.id,name,artist,size:f.size,added:rec.added,dur:p.dur});added++}
+    catch(e){msg('Could not save "'+name+'" – is storage full?');break}}
+  fill();bar();
+  if(added)msg(added+(added===1?' song':' songs')+' added'+(bad?' · '+bad+' skipped':''));else if(bad)msg('That file type cannot be played on this device');
+  try{if(navigator.storage&&navigator.storage.persist){M.persisted=await navigator.storage.persist();fill()}}catch{}}
+async function removeTrack(id){
+  const i=M.tracks.findIndex(t=>t.id===id);if(i<0)return;
+  const wasCur=i===M.cur;
+  try{await tx('readwrite',s=>s.delete(id))}catch{}
+  M.tracks.splice(i,1);
+  if(wasCur){au.pause();au.removeAttribute('src');au.load();if(M.url){URL.revokeObjectURL(M.url);M.url=null}M.cur=-1;ms()}
+  else if(i<M.cur)M.cur--;
+  M.confirm=null;fill();bar()}
+
+/* ── playback ── */
+function msg(t,ms=3000){document.querySelectorAll('.msg').forEach(n=>n.remove());const m=document.createElement('div');m.className='msg';m.setAttribute('role','status');m.textContent=t;document.body.append(m);setTimeout(()=>m.remove(),ms)}
+async function playIndex(i,autoplay=true){
+  const t=M.tracks[i];if(!t)return;
+  M.cur=i;pref.last=t.id;savePref();
+  let blob;try{blob=await getBlob(t.id)}catch{}
+  if(!blob||M.tracks[M.cur]!==t){if(!blob)msg('This song could not be read');return}
+  if(M.url)URL.revokeObjectURL(M.url);
+  M.url=URL.createObjectURL(blob);au.src=M.url;
+  fill();bar();ms();
+  if(autoplay){try{await au.play()}catch(e){if(e&&e.name==='NotAllowedError')msg('Tap play to start');else msg('Cannot play "'+t.name+'" on this device')}}}
+function toggle(){
+  if(M.cur<0){if(M.tracks.length){const i=Math.max(0,M.tracks.findIndex(t=>t.id===pref.last));playIndex(i)}return}
+  if(au.paused){au.play().catch(()=>msg('Tap play to start'))}else au.pause()}
+function pick(dir){
+  const n=M.tracks.length;if(!n)return;
+  if(pref.shuffle&&n>1){let j;do{j=Math.floor(Math.random()*n)}while(j===M.cur);return j}
+  return M.cur<0?0:(M.cur+dir+n)%n}
+function next(auto){
+  const n=M.tracks.length;if(!n)return;
+  if(auto&&pref.repeat==='one'){au.currentTime=0;au.play().catch(()=>{});return}
+  if(auto&&pref.repeat==='off'&&!pref.shuffle&&M.cur===n-1){au.pause();au.currentTime=0;upd();return}
+  playIndex(pick(1))}
+function prev(){if(au.currentTime>3){au.currentTime=0;return}playIndex(pick(-1))}
+au.addEventListener('ended',()=>next(true));
+au.addEventListener('play',()=>{upd();ms()});au.addEventListener('pause',upd);
+au.addEventListener('timeupdate',()=>{upd();psPos()});
+au.addEventListener('loadedmetadata',()=>{const t=M.tracks[M.cur];if(t&&isFinite(au.duration)&&Math.abs((t.dur||0)-au.duration)>1){t.dur=au.duration}upd();psPos()});
+au.addEventListener('error',()=>{if(M.cur>=0)msg('Cannot play this file on this device')});
+
+/* ── lock screen / headphones ── */
+function ms(){
+  if(!('mediaSession' in navigator))return;
+  const t=M.tracks[M.cur];
+  try{navigator.mediaSession.metadata=t?new MediaMetadata({title:t.name,artist:t.artist||'FlowVault',album:'FlowVault'}):null}catch{}
+}
+let psT=0;
+function psPos(){if(!('mediaSession' in navigator)||!navigator.mediaSession.setPositionState)return;const n=performance.now();if(n-psT<1000)return;psT=n;
+  try{if(isFinite(au.duration)&&au.duration>0)navigator.mediaSession.setPositionState({duration:au.duration,position:Math.min(au.currentTime,au.duration),playbackRate:au.playbackRate||1})}catch{}}
+if('mediaSession' in navigator){
+  const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch{}};
+  set('play',()=>toggle());set('pause',()=>au.pause());set('previoustrack',prev);set('nexttrack',()=>next(false));
+  set('seekto',d=>{if(d&&d.seekTime!=null)au.currentTime=d.seekTime});
+  set('seekbackward',d=>{au.currentTime=Math.max(0,au.currentTime-((d&&d.seekOffset)||10))});
+  set('seekforward',d=>{au.currentTime=Math.min(au.duration||1e9,au.currentTime+((d&&d.seekOffset)||10))})}
+
+/* ── UI ── */
+const art=t=>{const h=hash(t.id),a=h%360;return `background:linear-gradient(135deg,hsl(${a} 55% 42%),hsl(${(a+50)%360} 60% 28%))`};
+function pane(){
+  let w=q$('#mu');
+  if(!w){w=document.createElement('div');w.id='mu';w.className='web';w.setAttribute('role','dialog');w.setAttribute('aria-label','Music');document.body.append(w);
+    w.innerHTML=`<div class="tabs"><b style="padding:0 6px">Music</b><span class="mute" id="mcount"></span><span style="flex:1"></span>
+     <label class="btn" for="mfile" style="padding:6px 12px;cursor:pointer">+ Add music</label><input id="mfile" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus" multiple hidden>
+     <button class="ghost" data-m="close">Done</button></div>
+     <div class="mnow" id="mnow"></div><div class="mlist" id="mlist"></div>`;
+    w.style.bottom=document.getElementById('hud')?'84px':'0'}
+  return w}
+function now(){
+  const t=M.tracks[M.cur],n=q$('#mnow');if(!n)return;
+  n.innerHTML=`<div class="mart" id="mart" style="${t?art(t):'background:var(--panel)'}"><span>♪</span></div>
+   <div class="mti"><b class="priv" id="mtt">${t?esc(t.name):'Nothing playing'}</b><span class="mute" id="mta">${t?esc(t.artist||'Unknown artist'):(M.tracks.length?'Pick a song below':'Add songs from your phone')}</span></div>
+   <div class="mseek"><span class="tn" id="mcur">0:00</span><input type="range" id="mseek" min="0" max="1000" value="0" aria-label="Seek"><span class="tn" id="mdur">0:00</span></div>
+   <div class="mctl"><button class="ghost${pref.shuffle?' on':''}" data-m="shuffle" aria-label="Shuffle" aria-pressed="${pref.shuffle}">🔀</button><button class="ghost" data-m="prev" aria-label="Previous">⏮</button><button class="btn mplay" data-m="toggle" id="mplay" aria-label="Play or pause">▶</button><button class="ghost" data-m="next" aria-label="Next">⏭</button><button class="ghost${pref.repeat!=='off'?' on':''}" data-m="repeat" aria-label="Repeat: ${pref.repeat}">${pref.repeat==='one'?'🔂':'🔁'}</button></div>
+   <label class="mfocus"><input type="checkbox" id="mfocus" ${pref.focus?'checked':''}> Start music when I start a focus block</label>`;
+  upd()}
+function fill(){
+  const l=q$('#mlist');if(!l)return;
+  const total=M.tracks.reduce((a,t)=>a+(t.size||0),0);
+  q$('#mcount').textContent=M.tracks.length?M.tracks.length+(M.tracks.length===1?' song':' songs')+' · '+mb(total):'';
+  if(!M.tracks.length){l.innerHTML=`<div class="mempty"><b>Your music stays on this phone</b><p>Tap “+ Add music” and choose songs from Files. They are stored inside the app, play while you work, and keep playing when you leave the app.</p></div>`}
+  else l.innerHTML=M.tracks.map((t,i)=>`<div class="mrow${i===M.cur?' cur':''}"><button class="mpick" data-m="play" data-i="${i}"><i style="${art(t)}">${i===M.cur&&!au.paused?'▮▮':'♪'}</i><span><b class="priv">${esc(t.name)}</b><small class="mute">${esc(t.artist||'Unknown artist')} · ${fmt(t.dur)}</small></span></button>
+   ${M.confirm===t.id?`<button class="ghost d" data-m="del" data-id="${t.id}">Delete?</button><button class="ghost" data-m="keep">No</button>`:`<button class="ghost" data-m="ask" data-id="${t.id}" aria-label="Remove ${esc(t.name)}">✕</button>`}</div>`).join('')
+   +(M.persisted===false?'<p class="mute" style="padding:8px 16px;font-size:12px">iOS may clear stored songs if the phone runs low on space.</p>':'');
+  now()}
+function upd(){
+  const p=q$('#mplay'),bp=q$('#bplay');const playing=!au.paused&&M.cur>=0;
+  if(p)p.textContent=playing?'⏸':'▶';if(bp)bp.textContent=playing?'⏸':'▶';
+  const d=isFinite(au.duration)?au.duration:(M.tracks[M.cur]?M.tracks[M.cur].dur:0)||0;
+  const s=q$('#mseek');if(s&&!M.seeking){s.value=d?Math.round(au.currentTime/d*1000):0}
+  const c=q$('#mcur'),du=q$('#mdur');if(c)c.textContent=fmt(au.currentTime);if(du)du.textContent=fmt(d);
+  const mp=q$('#bprog');if(mp)mp.style.width=(d?au.currentTime/d*100:0)+'%';
+  document.querySelectorAll('.mrow.cur .mpick i').forEach(i=>i.textContent=playing?'▮▮':'♪')}
+/* mini player: stays visible when the pane is closed */
+function bar(){
+  let b=q$('#mb');const t=M.tracks[M.cur];
+  if(!t||M.open){b&&b.remove();return}
+  if(!b){b=document.createElement('div');b.id='mb';b.className='mbar';b.setAttribute('role','region');b.setAttribute('aria-label','Music player');document.body.append(b)}
+  b.style.bottom=document.getElementById('hud')?'calc(98px + env(safe-area-inset-bottom,0px))':'calc(12px + env(safe-area-inset-bottom,0px))';
+  b.innerHTML=`<button class="mbo" data-m="open" aria-label="Open music"><i style="${art(t)}">♪</i><span><b class="priv">${esc(t.name)}</b><small class="mute">${esc(t.artist||'Unknown artist')}</small></span></button><button class="ghost" data-m="prev" aria-label="Previous">⏮</button><button class="btn" id="bplay" data-m="toggle" aria-label="Play or pause">${au.paused?'▶':'⏸'}</button><button class="ghost" data-m="next" aria-label="Next">⏭</button><div class="mprog"><i id="bprog"></i></div>`;
+  upd()}
+async function openMusic(){
+  M.open=true;pane();bar();fill();
+  if(!M.loaded){try{await loadAll()}catch{msg('Music storage is not available here')}M.loaded=true;
+    if(M.cur<0&&pref.last){/* remember last song without autoplay */}
+    fill()}}
+function closeMusic(){M.open=false;q$('#mu')?.remove();M.confirm=null;bar()}
+window.musicOpen=openMusic;
+window.musicReset=()=>{M.open=false;q$('#mu')?.remove();M.confirm=null;bar()};  /* vault lock: close the pane, keep playing */
+window.musicBottom=()=>{const w=q$('#mu');if(w)w.style.bottom=document.getElementById('hud')?'84px':'0';bar()};
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('[data-m]');if(!b)return;
+  const a=b.dataset.m;
+  if(a==='open')openMusic();else if(a==='close')closeMusic();
+  else if(a==='toggle')toggle();else if(a==='prev')prev();else if(a==='next')next(false);
+  else if(a==='play')playIndex(+b.dataset.i);
+  else if(a==='shuffle'){pref.shuffle=!pref.shuffle;savePref();now()}
+  else if(a==='repeat'){pref.repeat={off:'all',all:'one',one:'off'}[pref.repeat];savePref();now()}
+  else if(a==='ask'){M.confirm=b.dataset.id;fill()}else if(a==='keep'){M.confirm=null;fill()}
+  else if(a==='del')removeTrack(b.dataset.id)});
+document.addEventListener('change',e=>{
+  if(e.target.id==='mfile'){const fs=[...e.target.files];e.target.value='';addFiles(fs)}
+  else if(e.target.id==='mfocus'){pref.focus=e.target.checked;savePref()}});
+document.addEventListener('input',e=>{if(e.target.id==='mseek'){M.seeking=true;const d=au.duration;if(isFinite(d))q$('#mcur').textContent=fmt(e.target.value/1000*d)}});
+document.addEventListener('change',e=>{if(e.target.id==='mseek'){const d=au.duration;if(isFinite(d))au.currentTime=e.target.value/1000*d;M.seeking=false}},true);
+
+/* start music together with a focus block */
+async function focusStart(){
+  if(!pref.focus||!au.paused)return;
+  if(!M.loaded){try{await loadAll()}catch{return}}
+  if(!M.tracks.length)return;
+  if(M.cur>=0)au.play().catch(()=>{});else{const i=Math.max(0,M.tracks.findIndex(t=>t.id===pref.last));playIndex(pref.shuffle?pick(1):i)}}
+if(typeof window.startBlock==='function'){const o=window.startBlock;window.startBlock=function(){const r=o.apply(this,arguments);try{focusStart()}catch{}return r}}
+/* restore the mini player after a reload */
+(async()=>{try{await loadAll();const i=M.tracks.findIndex(t=>t.id===pref.last);if(i>=0){M.cur=i;const blob=await getBlob(pref.last);if(blob){M.url=URL.createObjectURL(blob);au.src=M.url;ms();bar()}}}catch{}})();
 })();
 
 </script>

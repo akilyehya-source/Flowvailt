@@ -166,6 +166,24 @@ textarea,select{font-size:16px}
 @media(prefers-reduced-motion:reduce){.stage .bk.spin{animation:none;transform:rotateY(-40deg)}.slot{transition:none}}
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ───────── Relax: Mochi's room ───────── */
+#rx{z-index:4}
+.rxbars{display:flex;gap:10px;padding:8px 12px;background:var(--ink);border-bottom:1px solid var(--line)}
+.rxbars label{flex:1;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);min-width:0}
+.rxbars i{flex:1;height:7px;border-radius:4px;background:var(--line);overflow:hidden;display:block}
+.rxbars b{display:block;height:100%;width:0;background:var(--sig);border-radius:4px;transition:width .3s}
+.rxbars label:nth-child(2) b{background:var(--brass)}.rxbars label:nth-child(3) b{background:#ff7fae}
+.rxbars span{display:none}
+@media(min-width:520px){.rxbars span{display:inline}}
+#rxmood{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.rxstage{flex:1;min-height:0;position:relative;background:#232b52;display:flex;justify-content:center}
+.rxstage svg{width:100%;height:100%;max-width:640px;display:block;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.rxtoast{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13px;max-width:90%;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.rxbar{display:flex;gap:5px;justify-content:center;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:var(--ink);border-top:1px solid var(--line);overflow-x:auto}
+.rxbar .ghost{padding:9px 9px;white-space:nowrap;flex:none;font-size:14px}
+.rxbar .ghost.on{border-color:var(--sig);color:var(--sig)}
+nav.tools{display:contents}
+@media(max-width:760px){nav.tools{order:6;flex-basis:100%;display:flex;gap:6px;overflow-x:auto}nav.tools .ghost{flex:none}}
 </style>
 </head>
 <body>
@@ -199,7 +217,7 @@ let notes=[],noteUI=null,web=null,tabN=0,inApp=true,session=null,key=null,users=
 const root=$('#root');
 /* ── lock screen ── */
 function showLock(msg=''){
- if(window.libReset)libReset();
+ if(window.libReset)libReset();if(window.relaxReset)relaxReset();
  key=null;users={};palette=null;clipWipe();session=null;drawHud();web=null;drawWeb();notes=[];noteUI=null;drawNotes();
  const first=!vault;
  root.innerHTML=`<div class="lock"><form id="f"><div class="logo" style="font-size:18px">FlowVault</div>
@@ -207,7 +225,7 @@ function showLock(msg=''){
  <input id="pw" type="password" autocomplete="off" placeholder="Master password" aria-label="Master password" autofocus>
  <div class="err" id="err">${esc(msg)}</div>
  <button class="btn" style="width:100%" id="go">${first?'Create vault':'Unlock'}</button>
- ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v6 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
+ ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v7 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
  $('#f').onsubmit=async e=>{e.preventDefault();const pw=$('#pw').value;if(pw.length<4){$('#err').textContent='Use at least 4 characters.';return}
   $('#go').disabled=true;$('#go').textContent='Deriving key…';
   try{await unlock(pw)}catch{showLock('Wrong master password.')}};
@@ -240,7 +258,7 @@ function render(){
  <header><span class="logo">FlowVault</span>
  <button class="search" data-a="pal"><span>Search credentials and actions</span><kbd>⌘K</kbd></button>
  <span class="state tn" id="lk">Unlocked · locks in ${fmt(LOCK_SEC)}</span>
- <button class="ghost" data-l="open">Library</button><button class="ghost" data-a="notes">Notes</button><button class="ghost" data-a="web">Browser</button><button class="btn" data-a="lock">Lock now</button></header>
+ <nav class="tools" aria-label="Tools"><button class="ghost" data-l="open">Library</button><button class="ghost" data-a="notes">Notes</button><button class="ghost" data-a="web">Browser</button><button class="ghost" data-r="open">Relax</button></nav><button class="btn" data-a="lock">Lock now</button></header>
  <main><section aria-label="Today's focus blocks"><h2>Today</h2><ol>
  ${blocks.map(b=>`<li class="b ${b.status}"><button class="blk ${fb&&fb.id===b.id?'sel':''}" data-a="sel" data-id="${b.id}">
   <div class="row"><b>${esc(b.title)}</b><span class="mute tn">${new Date(b.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${b.min} min</span></div>
@@ -307,7 +325,7 @@ async function clipWipe(){
 function openPalette(){palette={q:'',i:0};drawPalette()}
 function cmds(){const f=focusBlock();return[
  {l:privacy?'Turn privacy blur off':'Turn privacy blur on',run:togglePrivacy},
- {l:'Open library',run:()=>{window.libOpen&&libOpen()}},
+ {l:'Open library',run:()=>{window.libOpen&&libOpen()}},{l:'Relax with Mochi',run:()=>{window.relaxOpen&&relaxOpen()}},
  {l:'Open in-app browser',run:()=>{web?(web.show=true,drawWeb()):openWeb('')}},
  {l:'New note',run:()=>newNote(null)},
  {l:'Open notes',run:openNotes},
@@ -361,7 +379,7 @@ async function launchWorkspace(id){
  drawHud();
 }
 function drawHud(){
- let h=$('#hud');const wb=$('#wb');if(wb)wb.style.bottom=session?'84px':'0';if(window.libBottom)libBottom();if(!session){if(h)h.remove();return}
+ let h=$('#hud');const wb=$('#wb');if(wb)wb.style.bottom=session?'84px':'0';if(window.libBottom)libBottom();if(window.relaxBottom)relaxBottom();if(!session){if(h)h.remove();return}
  const b=blocks.find(x=>x.id===session.id);
  if(!h){h=document.createElement('div');h.id='hud';h.className='hud';h.setAttribute('role','region');h.setAttribute('aria-label','Active session');document.body.append(h)}
  h.innerHTML=`<div class="r"><div class="t"><b>${esc(b.title)}</b><span class="mute tn" id="ht"></span></div>
@@ -1000,6 +1018,461 @@ window.libBottom=()=>{for(const s of ['#lib','#rd']){const n=q$(s);if(n)n.style.
 window.libOpen=()=>{if(key)document.querySelector('[data-l="open"]')?.click()};
 window.__lib=L;
 })();
+</script>
+<script id="relax-js">
+/* ───────── Mochi: a white anime cat drawn as SVG, with a small rig ─────────
+   Real cat proportions (long body, four legs, tail) with an anime face.
+   Local units: ground is y=0, the cat faces +x, the body centre is x=0. */
+const CatArt=(()=>{
+const LN='#7a88a8',LN2='#9aa6c2',INK='#22304f';
+const st=(w=1.7,c=LN)=>`stroke="${c}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`;
+
+/* ── shapes ── */
+const TORSO='M -96 -100 C -82 -120 -40 -124 -2 -121 C 34 -119 62 -122 80 -111 C 94 -103 98 -88 92 -72 C 88 -58 78 -46 60 -44 C 26 -40 -20 -44 -58 -46 C -86 -48 -112 -58 -112 -80 C -112 -90 -106 -96 -96 -100 Z';
+const FL_FILL='M 48 -92 C 45 -66 52 -44 56 -26 C 57 -16 54 -9 54 -4 C 54 1 59 4 65 4 L 77 4 C 84 4 84 -3 78 -5 C 74 -7 73 -12 73 -24 C 73 -46 78 -68 84 -92 Z';
+const FL_LINE='M 47 -68 C 46 -54 52 -42 56 -26 C 57 -16 54 -9 54 -4 C 54 1 59 4 65 4 L 77 4 C 84 4 84 -3 78 -5 C 74 -7 73 -12 73 -24 C 73 -42 77 -58 82 -72';
+const HL_FILL='M -114 -84 C -118 -60 -104 -46 -96 -34 C -92 -24 -90 -14 -90 -7 C -94 0 -91 4 -84 4 L -68 4 C -61 4 -61 -3 -67 -5 C -75 -6 -78 -10 -78 -18 C -78 -30 -62 -40 -62 -56 C -62 -70 -76 -88 -94 -94 Z';
+const HL_LINE='M -113 -66 C -114 -54 -103 -44 -96 -34 C -92 -24 -90 -14 -90 -7 C -94 0 -91 4 -84 4 L -68 4 C -61 4 -61 -3 -67 -5 C -75 -6 -78 -10 -78 -18 C -78 -30 -63 -40 -62 -54';
+const TAIL_S='M -104 -92 C -134 -96 -158 -112 -160 -140 C -161 -158 -152 -168 -142 -166';
+
+const SIT_TORSO='M -96 -4 C -124 -34 -110 -90 -64 -112 C -34 -126 8 -126 42 -114 C 68 -106 84 -90 82 -66 C 81 -46 78 -24 76 -4 Z';
+const SIT_HAUNCH='M -98 -36 C -98 -72 -62 -84 -34 -76 C -6 -68 -2 -34 -14 -14 C -22 -2 -40 2 -60 2 C -86 2 -98 -14 -98 -36 Z';
+const SIT_FL='M 52 -82 C 50 -52 54 -30 56 -14 C 54 -8 54 -2 60 2 L 82 2 C 90 2 90 -5 84 -7 C 79 -8 78 -14 78 -24 C 78 -46 80 -64 84 -86 Z';
+const SIT_TAIL='M -96 -12 C -80 6 -30 10 24 8 C 70 6 108 6 122 -12 C 130 -24 124 -34 114 -34';
+
+const CURL_BODY='M -94 -20 C -96 -58 -44 -76 8 -72 C 56 -68 94 -50 96 -26 C 97 -8 72 2 22 3 C -34 4 -92 4 -94 -20 Z';
+const CURL_TAIL='M -84 -8 C -50 10 30 12 84 -2 C 106 -8 112 -26 102 -38';
+
+const defs=`<defs>
+<linearGradient id="cg-body" gradientUnits="userSpaceOnUse" x1="0" y1="-120" x2="0" y2="-44"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#f7f9fd"/><stop offset="1" stop-color="#e3e9f6"/></linearGradient>
+<linearGradient id="cg-leg" gradientUnits="userSpaceOnUse" x1="0" y1="-90" x2="0" y2="6"><stop offset="0" stop-color="#fbfcff"/><stop offset="1" stop-color="#e7ecf7"/></linearGradient>
+<linearGradient id="cg-far" gradientUnits="userSpaceOnUse" x1="0" y1="-90" x2="0" y2="6"><stop offset="0" stop-color="#e3e9f6"/><stop offset="1" stop-color="#cfd8ea"/></linearGradient>
+<radialGradient id="cg-head" gradientUnits="userSpaceOnUse" cx="0" cy="-8" r="50"><stop offset="0" stop-color="#ffffff"/><stop offset=".72" stop-color="#f9fafe"/><stop offset="1" stop-color="#e4eaf7"/></radialGradient>
+<linearGradient id="cg-iris" gradientUnits="userSpaceOnUse" x1="0" y1="-13" x2="0" y2="13"><stop offset="0" stop-color="#21499a"/><stop offset=".45" stop-color="#3f9be8"/><stop offset="1" stop-color="#aeeeff"/></linearGradient>
+<linearGradient id="cg-ear" gradientUnits="userSpaceOnUse" x1="0" y1="-62" x2="0" y2="-24"><stop offset="0" stop-color="#ffd3de"/><stop offset="1" stop-color="#ff9db7"/></linearGradient>
+<clipPath id="cg-clip-torso"><path d="${TORSO}"/></clipPath>
+<clipPath id="cg-clip-sit"><path d="${SIT_TORSO}"/></clipPath>
+<clipPath id="cg-clip-curl"><path d="${CURL_BODY}"/></clipPath>
+</defs>`;
+
+/* ── head: front-facing, big anime eyes ── */
+function eye(x,side){return `
+<g data-r="eye${side}" transform="translate(${x} -4)">
+ <g data-r="open${side}">
+  <ellipse rx="10.6" ry="12.6" fill="url(#cg-iris)"/>
+  <ellipse data-r="pupil${side}" rx="3.4" ry="8.8" fill="#0f1730"/>
+  <ellipse cx="-3.6" cy="-5.4" rx="3.7" ry="4" fill="#fff"/>
+  <circle cx="3.8" cy="5.2" r="1.8" fill="#fff" opacity=".92"/>
+  <path d="M -11.2 -3 C -10.6 -12.4 -3 -15 4 -14.8 C 9.5 -14.4 12.2 -9.6 12.6 -4.4" fill="none" stroke="${INK}" stroke-width="2.9" stroke-linecap="round"/>
+  <path d="M ${side==='L'?'-11.2 -3 L -14.4 -5.6':'12.6 -4.4 L 15.8 -7'}" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
+ </g>
+ <path data-r="happy${side}" d="M -10 3 C -6 -8 6 -8 10 3" fill="none" stroke="${INK}" stroke-width="2.7" stroke-linecap="round" display="none"/>
+ <path data-r="sleep${side}" d="M -10 -3 C -6 6 6 6 10 -3" fill="none" stroke="${INK}" stroke-width="2.5" stroke-linecap="round" display="none"/>
+</g>`;}
+const ear=(s)=>{const m=s; return `
+<g data-r="ear${s<0?'L':'R'}">
+ <path d="M ${m*37} -20 C ${m*42} -38 ${m*42} -53 ${m*39} -63 C ${m*29} -57 ${m*17} -46 ${m*9} -33 Z" fill="url(#cg-head)" ${st(1.6)}/>
+ <path d="M ${m*33} -26 C ${m*35.5} -38 ${m*36} -48 ${m*34.5} -55 C ${m*28} -50 ${m*21} -43 ${m*15.5} -35 Z" fill="url(#cg-ear)"/>
+ <path d="M ${m*33} -28 C ${m*30} -34 ${m*27} -38 ${m*23} -40 M ${m*31} -24 C ${m*27} -30 ${m*23} -33 ${m*19} -34" fill="none" stroke="#ffe3ea" stroke-width="1.1" stroke-linecap="round" opacity=".9"/>
+</g>`;};
+const head=`
+<g data-r="head">
+ ${ear(-1)}${ear(1)}
+ <path d="M -39 -8 C -40 -28 -24 -38 0 -38 C 24 -38 40 -28 39 -8 L 46 -3 L 39 3 L 45 10 L 36 13 C 30 25 16 29 0 29 C -16 29 -30 25 -36 13 L -45 10 L -39 3 L -46 -3 Z" fill="url(#cg-head)" ${st(1.6)}/>
+ <path d="M -9 -37 L -5 -30 L -1 -37 L 3 -30 L 7 -37" fill="none" stroke="${LN2}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
+ <ellipse cx="-27" cy="8" rx="7.5" ry="4" fill="#ffb3c5" opacity=".5"/><ellipse cx="27" cy="8" rx="7.5" ry="4" fill="#ffb3c5" opacity=".5"/>
+ ${eye(-19,'L')}${eye(19,'R')}
+ <path d="M -3.3 8.6 L 3.3 8.6 L 0 12.8 Z" fill="#ff8fa9" stroke="#e5698b" stroke-width=".9" stroke-linejoin="round"/>
+ <path data-r="mouth" d="M 0 12.8 L 0 15.4 M 0 15.4 C -2 19 -7 19 -9 15.8 M 0 15.4 C 2 19 7 19 9 15.8" fill="none" stroke="#8a6a86" stroke-width="1.3" stroke-linecap="round"/>
+ <g data-r="mouthO" display="none"><ellipse cx="0" cy="19" rx="5.4" ry="4.4" fill="#7a3550"/><ellipse data-r="tongue" cx="0" cy="21" rx="3.6" ry="2.2" fill="#ff8fa9"/></g>
+ <g stroke="#c9d3e8" stroke-width="1" stroke-linecap="round" fill="none" opacity=".9">
+  <path d="M -27 9 L -66 3 M -27 12 L -68 12 M -26 15 L -63 21"/><path d="M 27 9 L 66 3 M 27 12 L 68 12 M 26 15 L 63 21"/></g>
+</g>`;
+
+/* ── poses ── */
+const tailStroke=(d,wo=15,wi=12.6)=>`<path d="${d}" fill="none" stroke="${LN}" stroke-width="${wo}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#fdfdff" stroke-width="${wi}" stroke-linecap="round"/>`;
+const limb=(fill,line,g,extra='')=>`<path d="${fill}" fill="url(#${g})" ${extra}/><path d="${line}" fill="none" ${st(1.7)}/>`;
+
+const stand=`
+<g data-r="stand">
+ <g data-r="legHF"><g transform="translate(24 -2)">${limb(HL_FILL,HL_LINE,'cg-far')}</g></g>
+ <g data-r="legFF"><g transform="translate(-20 -2)">${limb(FL_FILL,FL_LINE,'cg-far')}</g></g>
+ <g data-r="upper">
+  <g data-r="tailS">${tailStroke(TAIL_S)}</g>
+  <g transform="translate(0 -8)">
+   <path d="${TORSO}" fill="url(#cg-body)" ${st(1.8)}/>
+   <g clip-path="url(#cg-clip-torso)">
+    <path d="M -140 -76 C -90 -68 -30 -74 30 -71 C 70 -69 100 -74 120 -82 L 120 -30 L -140 -30 Z" fill="#e8edf8"/>
+    <path d="M 56 -112 C 70 -100 74 -84 70 -64 L 120 -62 L 120 -124 Z" fill="#eef2fa"/>
+   </g>
+   <path d="M -50 -96 C -38 -82 -44 -64 -62 -56" fill="none" stroke="${LN2}" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>
+   <path d="M 92 -72 L 83 -68 L 91 -63 L 82 -58 L 89 -54" fill="none" stroke="${LN2}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>
+  </g>
+ </g>
+ <g data-r="legHN">${limb(HL_FILL,HL_LINE,'cg-leg')}</g>
+ <g data-r="legFN">${limb(FL_FILL,FL_LINE,'cg-leg')}</g>
+ <g data-r="headSlotS"></g>
+</g>`;
+
+const sit=`
+<g data-r="sit">
+ <g transform="translate(-18 0)">${limb(SIT_FL,'M 52 -60 C 51 -46 54 -30 56 -14 C 54 -8 54 -2 60 2 L 82 2 C 90 2 90 -5 84 -7 C 79 -8 78 -14 78 -24','cg-far')}</g>
+ <path d="${SIT_TORSO}" fill="url(#cg-body)" ${st(1.8)}/>
+ <g clip-path="url(#cg-clip-sit)"><path d="M -140 -64 C -90 -50 -20 -70 40 -64 L 120 -52 L 120 10 L -140 10 Z" fill="#e8edf8"/></g>
+ <path d="${SIT_HAUNCH}" fill="url(#cg-body)" ${st(1.7)}/>
+ <path d="M -70 -60 C -52 -52 -48 -30 -62 -14" fill="none" stroke="${LN2}" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>
+ <path d="M -24 -2 C -24 -12 8 -14 28 -8 C 40 -4 38 5 26 5 L -18 5 Z" fill="url(#cg-leg)" ${st(1.6)}/>
+ ${limb(SIT_FL,'M 50 -62 C 50 -48 54 -30 56 -14 C 54 -8 54 -2 60 2 L 82 2 C 90 2 90 -5 84 -7 C 79 -8 78 -14 78 -24 C 78 -42 80 -58 83 -72','cg-leg')}
+ <g data-r="tailT">${tailStroke(SIT_TAIL)}</g>
+ <g data-r="headSlotT" transform="translate(64 -134)"></g>
+</g>`;
+
+const curl=`
+<g data-r="curl"><g data-r="breath">
+ <path d="${CURL_BODY}" fill="url(#cg-body)" ${st(1.8)}/>
+ <g clip-path="url(#cg-clip-curl)"><path d="M -110 -30 C -50 -22 40 -34 110 -26 L 110 10 L -110 10 Z" fill="#e8edf8"/></g>
+ <path d="M -70 -52 C -48 -44 -44 -20 -62 -8" fill="none" stroke="${LN2}" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>
+ <g data-r="tailC">${tailStroke(CURL_TAIL)}</g>
+ <g data-r="headSlotC" transform="translate(56 -32) rotate(-9) scale(.95)"></g>
+ <ellipse cx="34" cy="-4" rx="15" ry="8" fill="url(#cg-leg)" ${st(1.6)}/><ellipse cx="62" cy="-3" rx="14" ry="7.5" fill="url(#cg-leg)" ${st(1.6)}/>
+</g></g>`;
+
+const body=`<ellipse data-r="shadow" cx="0" cy="3" rx="118" ry="13" fill="#000" opacity=".28"/>
+<g data-r="flip">${stand}${sit}${curl}</g>`;
+
+/* ── rig ── */
+function mount(g){
+  g.innerHTML=body;
+  const r={};g.querySelectorAll('[data-r]').forEach(n=>{r[n.dataset.r]=n});
+  r.root=g;
+  r.head=(()=>{const t=document.createElementNS('http://www.w3.org/2000/svg','g');t.innerHTML=head;const h=t.firstElementChild;h.querySelectorAll('[data-r]').forEach(n=>{r[n.dataset.r]=n});r.head=h;return h})();
+  r.headSlotS.append(r.head);r._pose='';
+  return r;
+}
+const rot=(a,x,y)=>`rotate(${a.toFixed(2)} ${x} ${y})`;
+function legT(px,py,ang,lift,sy){return `translate(0 ${(-lift).toFixed(2)}) translate(${px} ${py}) rotate(${ang.toFixed(2)}) scale(1 ${sy.toFixed(3)}) translate(${-px} ${-py})`}
+
+/* p: pose 'stand'|'sit'|'curl', face ±1, gait (rad), walk 0..1, gallop 0..1, crouch 0..1, leap 0..1,
+   pitch (deg), headX/headY, headRot, lookX/lookY (-1..1), eyes 'open'|'happy'|'sleep', blink 0..1, half 0..1,
+   round 0..1 (pupil size), earL/earR deg, tail deg, breath 0..1, mouth 0..1, tongue 0..1, bob px */
+function apply(r,p){
+  const pose=p.pose||'stand';
+  if(r._pose!==pose){
+    r.stand.style.display=pose==='stand'?'':'none';r.sit.style.display=pose==='sit'?'':'none';r.curl.style.display=pose==='curl'?'':'none';
+    (pose==='stand'?r.headSlotS:pose==='sit'?r.headSlotT:r.headSlotC).append(r.head);
+    r._pose=pose;
+  }
+  r.flip.setAttribute('transform',`scale(${p.face||1} 1)`);
+  r.shadow.setAttribute('rx',pose==='stand'?122:pose==='sit'?84:104);
+  r.shadow.setAttribute('cx',pose==='stand'?0:pose==='sit'?4:4);
+  const ph=p.gait||0,A=(26+14*(p.gallop||0))*(p.walk||0),c=p.crouch||0,lp=p.leap||0;
+  const ex=(x)=>x*(1);
+  if(pose==='stand'){
+    const s=Math.sin(ph),k=Math.cos(ph),W=p.walk||0;
+    const sy=1-.26*c,pitch=p.pitch||0;
+    r.legFN.setAttribute('transform',legT(62,-92,A*s-pitch*.9-46*lp,Math.max(0,-k)*7*W,sy));
+    r.legFF.setAttribute('transform',legT(42,-92,-A*s-pitch*.9-34*lp,Math.max(0,k)*7*W,sy));
+    r.legHN.setAttribute('transform',legT(-90,-88,-A*s+36*lp,Math.max(0,k)*7*W,sy));
+    r.legHF.setAttribute('transform',legT(-66,-88,A*s+28*lp,Math.max(0,-k)*7*W,sy));
+    const bob=(p.bob!==undefined?p.bob:-Math.abs(Math.sin(ph))*2.4*W);
+    const ut=`translate(0 ${(bob+17*c).toFixed(2)}) ${rot((pitch+4*c+9*lp),-85,-78)}`;
+    r.upper.setAttribute('transform',ut);
+    r.tailS.setAttribute('transform',rot(p.tail||0,-104,-92));
+    r.headSlotS.setAttribute('transform',`${ut} translate(${96+(p.headX||0)} ${-112+(p.headY||0)}) rotate(${(p.headRot||0).toFixed(2)})`);
+  }else if(pose==='sit'){
+    r.tailT.setAttribute('transform',rot((p.tail||0)*.7,-96,-12));
+    r.headSlotT.setAttribute('transform',`translate(${64+(p.headX||0)} ${-134+(p.headY||0)}) rotate(${(p.headRot||0).toFixed(2)})`);
+  }else{
+    const b=p.breath||0;
+    r.breath.setAttribute('transform',`translate(0 ${(-b*1.5).toFixed(2)}) scale(1 ${(1+b*.035).toFixed(4)})`);
+    r.tailC.setAttribute('transform',rot((p.tail||0)*.5,-84,-8));
+    r.headSlotC.setAttribute('transform',`translate(${56+(p.headX||0)} ${-32+(p.headY||0)}) rotate(${(-9+(p.headRot||0)).toFixed(2)}) scale(.95)`);
+  }
+  /* eyes */
+  const mode=p.eyes||'open',blink=Math.min(1,Math.max(p.blink||0,p.half?p.half*.55:0)),k=Math.max(.07,1-blink);
+  for(const s of ['L','R']){
+    r['open'+s].setAttribute('display',mode==='open'?'':'none');
+    r['happy'+s].setAttribute('display',mode==='happy'?'':'none');
+    r['sleep'+s].setAttribute('display',mode==='sleep'?'':'none');
+    r['open'+s].setAttribute('transform',`translate(0 -12) scale(1 ${k.toFixed(3)}) translate(0 12)`);
+    const pu=r['pupil'+s],lx=(p.lookX||0)*3,ly=(p.lookY||0)*2.6,rd=p.round||0;
+    pu.setAttribute('rx',(3.4+rd*4.6).toFixed(2));pu.setAttribute('ry',(8.8+rd*1.6).toFixed(2));
+    pu.setAttribute('transform',`translate(${lx.toFixed(2)} ${ly.toFixed(2)})`);
+  }
+  r.earL.setAttribute('transform',rot(p.earL||0,-24,-28));
+  r.earR.setAttribute('transform',rot(p.earR||0,24,-28));
+  const mo=p.mouth||0;
+  r.mouth.setAttribute('display',mo>0.05?'none':'');
+  r.mouthO.setAttribute('display',mo>0.05?'':'none');
+  if(mo>0.05){r.mouthO.setAttribute('transform',`translate(0 19) scale(${(.55+mo*.45).toFixed(2)} ${(.35+mo*.65).toFixed(2)}) translate(0 -19)`)}
+  r.tongue.setAttribute('display',(p.tongue||0)>0.05?'':'none');
+  r.head.setAttribute('transform',`rotate(${(0).toFixed(1)})`);
+}
+return{defs,mount,apply};
+})();
+
+/* ───────── FlowVault Relax: Mochi the white cat (feed, laser, bed, pet) ───────── */
+(()=>{
+'use strict';
+const NS='http://www.w3.org/2000/svg',KEY='fv-relax';
+const BED={x:104,y:488},BOWL={x:322,y:456};
+const X0=50,X1=366,Y0=402,Y1=532;
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),rnd=(a,b)=>a+Math.random()*(b-a);
+const q$=(s,r=document)=>r.querySelector(s);
+const sc=y=>.46+(y-400)*.0009;
+const FOOD={kibble:{full:26,joy:3,label:'Kibble'},fish:{full:34,joy:12,label:'Fish'}};
+function load(){
+  let d={};try{d=JSON.parse(localStorage.getItem(KEY)||'{}')}catch{}
+  const n=Date.now(),o={full:70,energy:85,joy:60,food:0,kind:'kibble',t:n,meals:0,plays:0,naps:0,snd:false,...d};
+  const h=clamp((n-(o.t||n))/3600000,0,48);
+  o.full=Math.max(8,o.full-h*12);o.energy=Math.max(10,o.energy-h*6);o.joy=Math.max(10,o.joy-h*9);o.t=n;return o}
+let S=load();
+function save(){S.t=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch{}}
+const R={open:false,raf:0,last:0,time:0,svg:null,cat:null,refs:null,fx:null,tool:null};
+const C={x:240,y:470,face:-1,st:'idle',t:0,wait:1.2,ph:0,walk:0,gal:0,cr:0,lp:0,tx:0,ty:0,then:null,blink:0,bt:3,look:0,lookY:0,petT:0,hs:0,eatT:0,pt:0,from:0,to:0,chew:0,wag:0,pause:0,bedReq:false};
+const D={x:250,y:470,on:false,last:-99,px:250,py:470,vel:0,show:false};
+const P=[]; // particles
+let toast=null,toastT=0,bubble='',bubT=0,audio=null,statT=0;
+
+/* ───── scene ───── */
+function sceneSVG(){
+  const stars=Array.from({length:16},(_,i)=>`<circle cx="${236+((i*37)%120)}" cy="${34+((i*53)%96)}" r="${i%4?.9:1.5}" fill="#fff" opacity="${.35+(i%5)*.12}"/>`).join('');
+  return `<svg id="rxs" viewBox="0 0 420 560" preserveAspectRatio="xMidYMax meet" role="img" aria-label="A cosy room where Mochi the white cat lives">
+  ${CatArt.defs}
+  <defs><linearGradient id="rx-wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232b52"/><stop offset="1" stop-color="#3a3560"/></linearGradient>
+  <linearGradient id="rx-floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a4a3a"/><stop offset="1" stop-color="#4a3226"/></linearGradient>
+  <radialGradient id="rx-lamp" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd9a0" stop-opacity=".55"/><stop offset="1" stop-color="#ffd9a0" stop-opacity="0"/></radialGradient>
+  <radialGradient id="rx-dot" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff5b5b" stop-opacity=".9"/><stop offset=".35" stop-color="#ff2d2d" stop-opacity=".5"/><stop offset="1" stop-color="#ff2d2d" stop-opacity="0"/></radialGradient></defs>
+  <rect width="420" height="560" fill="url(#rx-wall)"/>
+  <g><rect x="226" y="22" width="150" height="130" rx="8" fill="#141a38" stroke="#7b6a58" stroke-width="7"/>${stars}
+   <circle cx="332" cy="62" r="17" fill="#f6efd2"/><circle cx="340" cy="57" r="15" fill="#141a38"/>
+   <path d="M301 22V152M226 87H376" stroke="#7b6a58" stroke-width="5"/>
+   <path d="M214 14c18 30 20 90 6 150H196c-8-60-6-120 10-150z" fill="#8b4a6a" opacity=".9"/><path d="M388 14c-18 30-20 90-6 150h24c8-60 6-120-10-150z" fill="#8b4a6a" opacity=".9"/></g>
+  <g><rect x="40" y="52" width="86" height="66" rx="5" fill="#2b3360" stroke="#c9a66b" stroke-width="5"/><path d="M52 104l22-26 16 18 12-10 16 18z" fill="#4e5f9a"/><circle cx="98" cy="74" r="7" fill="#e6c97a"/></g>
+  <g><rect x="30" y="196" width="150" height="8" rx="2" fill="#7b5a3e"/><rect x="48" y="170" width="18" height="26" rx="2" fill="#9b6b8a"/><rect x="68" y="164" width="14" height="32" rx="2" fill="#5f8fa8"/>
+   <path d="M130 196c-8-6-10-20-4-26 4 8 10 8 14 0 6 8 6 20-2 26z" fill="#6a9b6c"/><path d="M122 196h26l-3 -10h-20z" fill="#b3714e"/></g>
+  <rect y="330" width="420" height="230" fill="url(#rx-floor)"/><rect y="326" width="420" height="8" fill="#2a2038"/>
+  <g opacity=".22" stroke="#000" stroke-width="1.2"><path d="M0 372H420M0 420H420M0 476H420M0 536H420"/></g>
+  <ellipse cx="210" cy="470" rx="190" ry="70" fill="#7a4a6a" opacity=".55"/><ellipse cx="210" cy="470" rx="168" ry="58" fill="none" stroke="#c995a6" stroke-width="2" stroke-dasharray="5 7" opacity=".5"/>
+  <ellipse cx="305" cy="190" rx="130" ry="150" fill="url(#rx-lamp)"/>
+  <g id="rxbed"><ellipse cx="${BED.x}" cy="${BED.y+14}" rx="92" ry="22" fill="#000" opacity=".28"/>
+   <ellipse cx="${BED.x}" cy="${BED.y+2}" rx="86" ry="26" fill="#b4688a"/><ellipse cx="${BED.x}" cy="${BED.y-2}" rx="68" ry="18" fill="#7b3f5e"/></g>
+  <g id="rxcat"></g>
+  <path d="M${BED.x-86} ${BED.y+2}a86 26 0 0 0 172 0v10a86 26 0 0 1-172 0z" fill="#d880a4"/><path d="M${BED.x-86} ${BED.y+2}a86 26 0 0 0 172 0" fill="none" stroke="#ef9fbd" stroke-width="3"/>
+  <g id="rxbowl" transform="translate(${BOWL.x} ${BOWL.y})"><ellipse cx="0" cy="16" rx="42" ry="10" fill="#000" opacity=".28"/>
+   <g id="rxfood"></g>
+   <path d="M-34 -2h68l-8 22q-2 6-9 6h-34q-7 0-9-6z" fill="#f3f1fa"/><path d="M-31 6h62l-3 10h-56z" fill="#6a8fd8"/><ellipse cx="0" cy="-2" rx="34" ry="8" fill="#d9d6e8" opacity="0"/>
+   <g fill="#fff"><circle cx="-4" cy="12" r="0"/></g></g>
+  <g id="rxfx"></g>
+  <g id="rxdot" display="none"><circle r="16" fill="url(#rx-dot)"/><circle r="4.2" fill="#ff3a3a"/><circle r="1.6" fill="#fff" opacity=".9"/></g>
+  <g id="rxbub" opacity="0"><rect rx="9" fill="#fff" opacity=".96"/><text text-anchor="middle" font-size="12" fill="#2a2f4a" font-family="system-ui,sans-serif" font-weight="600"></text></g>
+  </svg>`}
+function drawFood(){
+  const f=q$('#rxfood');if(!f)return;let h='';
+  if(S.food>0){
+    if(S.kind==='kibble'){for(let i=0;i<S.food*7;i++){const a=(i*2.4)%6.28,r=(i%5)*5.2;h+=`<ellipse cx="${(Math.cos(a)*r*1.3).toFixed(1)}" cy="${(-6-Math.abs(Math.sin(a))*r*.25-(i%3)).toFixed(1)}" rx="4" ry="3" fill="${i%2?'#a8683c':'#8a4f2c'}"/>`}}
+    else{for(let i=0;i<S.food;i++){const x=-14+i*14;h+=`<g transform="translate(${x} ${-9-(i%2)*3})"><path d="M-11 0c5-8 14-8 19 0-5 8-14 8-19 0z" fill="#ffb9a8"/><path d="M8 0l8-6v12z" fill="#ff9d8a"/><circle cx="-6" cy="-1" r="1.4" fill="#2a2f4a"/></g>`}}}
+  f.innerHTML=h}
+
+/* ───── particles & toast ───── */
+function spawn(kind,x,y){P.push({k:kind,x,y,t:0,l:kind==='z'?2.6:1.4,vx:rnd(-8,8),n:null})}
+function say(t,d=1.8){bubble=t;bubT=d}
+function note(t){toast=t;toastT=2.6;const n=q$('#rxtoast');if(n){n.textContent=t;n.hidden=false}}
+function fxStep(dt){
+  const g=R.fx;if(!g)return;
+  for(let i=P.length-1;i>=0;i--){const p=P[i];p.t+=dt;if(p.t>p.l){p.n&&p.n.remove();P.splice(i,1);continue}
+    if(!p.n){p.n=document.createElementNS(NS,'text');p.n.setAttribute('text-anchor','middle');p.n.setAttribute('pointer-events','none');p.n.textContent=p.k==='z'?'z':'♥';p.n.setAttribute('fill',p.k==='z'?'#cfd8ff':'#ff7fae');g.append(p.n)}
+    const u=p.t/p.l;p.n.setAttribute('x',(p.x+p.vx*p.t+Math.sin(p.t*3)*4).toFixed(1));p.n.setAttribute('y',(p.y-u*(p.k==='z'?44:40)).toFixed(1));
+    p.n.setAttribute('font-size',(p.k==='z'?11+u*10:12+u*8).toFixed(1));p.n.setAttribute('opacity',(u<.7?1:(1-u)/.3).toFixed(2))}}
+function purr(on){
+  if(!S.snd){stopPurr();return}
+  try{
+    if(!audio){const A=new(window.AudioContext||window.webkitAudioContext)();const o=A.createOscillator(),g=A.createGain(),f=A.createBiquadFilter(),l=A.createOscillator(),lg=A.createGain();
+      o.type='sawtooth';o.frequency.value=27;f.type='lowpass';f.frequency.value=220;g.gain.value=0;l.frequency.value=3.1;lg.gain.value=.03;l.connect(lg);lg.connect(g.gain);o.connect(f);f.connect(g);g.connect(A.destination);o.start();l.start();audio={A,g}}
+    audio.A.resume&&audio.A.resume();audio.g.gain.setTargetAtTime(on?.07:0,audio.A.currentTime,.12)}catch{}}
+function stopPurr(){try{audio&&audio.g.gain.setTargetAtTime(0,audio.A.currentTime,.1)}catch{}}
+
+/* ───── behaviour ───── */
+function goto(x,y,then,speed){C.st='walk';C.tx=clamp(x,X0-10,X1+10);C.ty=clamp(y,Y0,Y1);C.then=then||null;C.spd=speed||54}
+function idle(w){C.st='idle';C.wait=w==null?rnd(2.5,6):w;C.t=0}
+function sleepy(){return S.energy<22}
+function decide(){
+  const laserOn=D.show&&R.time-D.last<9&&S.energy>12;
+  if(laserOn){C.st='chase';C.t=0;C.pause=0;return}
+  if(S.food>0&&S.full<86){goto(BOWL.x-66,BOWL.y+2,beginEat,70);return}
+  if(C.bedReq||sleepy()){C.bedReq=false;goto(BED.x,BED.y-5,beginSettle,60);return}
+  if(Math.random()<.62)goto(rnd(X0+30,X1-30),rnd(Y0+10,Y1-10),()=>idle(),50);else idle(rnd(2,5))}
+function beginEat(){
+  C.face=1;C.x=BOWL.x-66;C.y=BOWL.y+2;
+  if(S.food<=0){idle(1);return}
+  if(S.full>=88){say('not hungry…');idle(2);return}
+  C.st='eat';C.t=0;C.eatT=4.2}
+function beginSettle(){C.st='settle';C.t=0}
+function wake(){if(C.st==='sleep'||C.st==='settle'){C.st='idle';C.wait=2.5;C.t=0;stopPurr();say('mrrp!',1.4)}}
+
+function step(dt){
+  R.time+=dt;C.t+=dt;
+  const moving=C.st==='walk'||C.st==='chase';
+  if(C.st==='sleep'){S.energy=Math.min(100,S.energy+dt*2.4);if(S.energy>=100){wake();S.naps++;save()}}
+  else S.energy=Math.max(0,S.energy-dt*(C.st==='chase'||C.st==='pounce'||C.st==='stalk'?.45:.035));
+  S.full=Math.max(0,S.full-dt*.022);S.joy=Math.max(0,S.joy-dt*.03);
+  let gallop=0,eating=false,tail=0,eyes='open',half=0,round=0,pose='stand',crT=0,lpT=0,mouth=0,look=0,lookY=0,headX=0,headY=0,pitch=0,headRot=0,breath=0;
+  const s=sc(C.y);
+  /* petting overrides eyes/tail */
+  const petting=C.petT>0;if(petting)C.petT-=dt;
+  switch(C.st){
+  case 'idle':{pose='sit';tail=Math.sin(R.time*1.6)*10;look=Math.sin(R.time*.7)*.6;
+    if(sleepy())half=.7;
+    if(C.t>C.wait&&!petting)decide();
+    if(S.full<30&&S.food<=0&&Math.floor(R.time)%11===5&&bubT<=0)say('mrrp? 🍽');
+    break}
+  case 'walk':{
+    const dx=C.tx-C.x,dy=C.ty-C.y,d=Math.hypot(dx,dy);
+    if(Math.abs(dx)>6)C.face=dx>0?1:-1;
+    if(d<3){const f=C.then;C.then=null;C.x=C.tx;C.y=C.ty;if(f)f();else idle();break}
+    const st=Math.min(d,C.spd*dt);C.x+=dx/d*st;C.y+=dy/d*st;
+    if(C.st==='walk'&&(S.food>0&&S.full<86)&&C.then!==beginEat&&C.then!==beginSettle&&C.then!==null){/* keep going */}
+    break}
+  case 'chase':{
+    const dx=D.x-C.x;if(Math.abs(dx)>40)C.face=dx>0?1:-1;
+    if(!D.show||R.time-D.last>9||S.energy<=12){idle(1.2);break}
+    const tx=D.x-C.face*92*s,ty=D.y,ex=tx-C.x,ey=ty-C.y,d=Math.hypot(ex,ey);
+    const spd=d>110?200:d>40?130:60;
+    if(d>8){const st=Math.min(d,spd*dt);C.x+=ex/d*st;C.y+=ey/d*st}
+    C.x=clamp(C.x,X0-6,X1+6);C.y=clamp(C.y,Y0,Y1);
+    gallop=d>60?1:0;round=1;look=.8;lookY=.5;tail=Math.sin(R.time*10)*12;
+    if(d<=16&&D.vel<40){C.st='stalk';C.t=0;C.wait=rnd(.7,1.4);C.pt=0}
+    break}
+  case 'stalk':{
+    crT=1;round=1;look=.9;lookY=.5;tail=Math.sin(R.time*13)*16;
+    if(D.vel>70){C.st='chase';C.t=0;break}
+    const dx=D.x-C.x;if(Math.abs(dx)>30)C.face=dx>0?1:-1;
+    if(C.t>C.wait){C.st='pounce';C.t=0;C.from=C.x;C.to=clamp(D.x-C.face*60*s,X0,X1);C.pt=0}
+    break}
+  case 'pounce':{
+    const u=Math.min(1,C.t/.55);C.x=C.from+(C.to-C.from)*u;lpT=Math.sin(Math.PI*Math.min(1,u))*1;round=1;look=.9;lookY=.6;crT=u<.25?1-u*4:0;
+    if(u>=1){S.joy=Math.min(100,S.joy+7);S.plays++;C.st='chase';C.t=0;save();
+      if(Math.random()<.5){/* the dot "escapes" a little so the game keeps going */D.x=clamp(D.x+rnd(-70,70),X0,X1);D.y=clamp(D.y+rnd(-30,30),Y0,Y1);D.last=R.time-5;D.vel=140}}
+    break}
+  case 'eat':{
+    pitch=11;headX=26;headY=60+Math.sin(R.time*9)*4;eyes='happy';mouth=clamp(.25+Math.sin(R.time*10)*.35,0,.6);tail=Math.sin(R.time*2)*8;
+    C.eatT-=dt;
+    if(C.eatT<=0){const f=FOOD[S.kind];S.food=Math.max(0,S.food-1);S.full=Math.min(100,S.full+f.full);S.joy=Math.min(100,S.joy+f.joy);S.meals++;drawFood();save();
+      if(S.food>0&&S.full<90){C.eatT=4.2}else{idle(2.2);C.hs=2;spawn('h',C.x+C.face*60*s,C.y-90*s)}}
+    break}
+  case 'settle':{
+    pose='sit';half=Math.min(1,C.t/.9);look=0;tail=0;
+    if(C.t>1.2){C.st='sleep';C.t=0;S.naps=S.naps;spawn('z',C.x+22,C.y-70*s)}
+    break}
+  case 'sleep':{pose='curl';eyes='sleep';breath=(Math.sin(R.time*1.9)+1)/2;tail=Math.sin(R.time*.8)*5;
+    if(Math.floor(R.time*10)%13===0&&!P.some(p=>p.k==='z'&&p.t<1))spawn('z',C.x+26,C.y-62*s);
+    break}
+  }
+  if(C.hs>0){C.hs-=dt;if(C.st==='idle'){eyes='happy';headRot=-6}}
+  if(petting&&(C.st==='idle'||C.st==='sleep')){if(C.st==='idle'){eyes='happy';headRot=-7}tail=Math.sin(R.time*5)*14}
+  /* smooth */
+  const k=1-Math.exp(-dt*10);
+  C.walk+=((moving||C.st==='pounce')&&C.st!=='stalk'?1:0)-C.walk>0?(1-C.walk)*k:(0-C.walk)*k;
+  C.gal+=(gallop-C.gal)*k;C.cr+=(crT-C.cr)*k;C.lp=lpT;
+  const rate=moving?(C.st==='chase'?7+7*C.gal:6.5):(C.st==='pounce'?10:0);
+  C.ph+=dt*rate*(C.walk>.05?1:0);
+  C.bt-=dt;if(C.bt<=0){C.blink=.16;C.bt=rnd(2.4,5.2)}
+  let bl=0;if(C.blink>0){C.blink-=dt;bl=Math.sin(Math.PI*clamp(C.blink/.16,0,1))}
+  const pr=R.refs;
+  CatArt.apply(pr,{pose,face:C.face,gait:C.ph,walk:C.walk,gallop:C.gal,crouch:C.cr,leap:C.lp,pitch,headX,headY,headRot,lookX:look,lookY,eyes,blink:bl,half,round,tail,breath,mouth,bob:C.st==='eat'?0:undefined});
+  const sy=pose==='curl'?C.y-5:C.y;
+  R.cat.setAttribute('transform',`translate(${C.x.toFixed(1)} ${sy.toFixed(1)}) scale(${s.toFixed(3)})`);
+  /* laser */
+  const dg=q$('#rxdot');
+  if(D.show){dg.removeAttribute('display');const fl=1+Math.sin(R.time*40)*.05;dg.setAttribute('transform',`translate(${D.x.toFixed(1)} ${D.y.toFixed(1)}) scale(${fl.toFixed(3)})`);D.vel*=Math.pow(.02,dt)}else dg.setAttribute('display','none');
+  /* bubble */
+  const bb=q$('#rxbub');
+  if(bubT>0){bubT-=dt;const t=bb.querySelector('text');if(t.textContent!==bubble){t.textContent=bubble;const w=Math.max(40,bubble.length*7+18);const r=bb.querySelector('rect');r.setAttribute('width',w);r.setAttribute('height',24);r.setAttribute('x',-w/2);r.setAttribute('y',-17);t.setAttribute('y',0)}
+    bb.setAttribute('transform',`translate(${clamp(C.x,50,370).toFixed(0)} ${(C.y-135*s).toFixed(0)})`);bb.setAttribute('opacity',Math.min(1,bubT*3))}else bb.setAttribute('opacity',0);
+  if(toastT>0){toastT-=dt;if(toastT<=0){const n=q$('#rxtoast');if(n)n.hidden=true}}
+  fxStep(dt);
+  statT-=dt;if(statT<=0){statT=.3;stats()}
+}
+function stats(){
+  for(const [id,v] of [['full',S.full],['energy',S.energy],['joy',S.joy]]){const n=q$('#rxb-'+id);if(n)n.style.width=Math.round(v)+'%'}
+  const m=q$('#rxmood');if(!m)return;
+  const st=C.st;m.textContent=st==='sleep'?'Mochi is asleep':st==='eat'?'Mochi is eating':st==='chase'||st==='stalk'||st==='pounce'?'Mochi is hunting the dot':C.petT>0?'Mochi is purring':S.full<28?'Mochi is hungry':sleepy()?'Mochi is sleepy':S.joy>75?'Mochi is happy':'Mochi is relaxing';
+  const b=q$('#rxbed'),l=q$('[data-r="laser"]'),sn=q$('[data-r="snd"]');if(l)l.classList.toggle('on',D.show);if(sn)sn.classList.toggle('on',S.snd);
+  const bd=q$('[data-r="bed"]');if(bd)bd.textContent=(st==='sleep'||st==='settle')?'☀ Wake':'🛏 Bed'}
+function loop(ts){
+  if(!R.open)return;
+  const dt=Math.min(.05,(ts-(R.last||ts))/1000);R.last=ts;
+  try{step(dt)}catch(e){console.error(e)}
+  R.raf=requestAnimationFrame(loop)}
+
+/* ───── input ───── */
+function pt(e){const m=R.svg.getScreenCTM();if(!m)return{x:0,y:0};const p=R.svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const r=p.matrixTransform(m.inverse());return{x:r.x,y:r.y}}
+function onCat(p){const s=sc(C.y);return Math.abs(p.x-C.x)<100*s&&p.y>C.y-135*s&&p.y<C.y+12}
+function laserTo(p,first){
+  const nx=clamp(p.x,X0-6,X1+6),ny=clamp(p.y,Y0-6,Y1+6),d=Math.hypot(nx-D.x,ny-D.y);
+  D.vel=Math.max(D.vel,d/.016*(first?0:1));D.x=nx;D.y=ny;D.last=R.time;
+  if(S.energy<=12&&!R._tiredNote){R._tiredNote=1;note('Mochi is too sleepy to play – let her nap');setTimeout(()=>R._tiredNote=0,6000)}
+  if(C.st==='idle'&&S.energy>12&&D.show)decide();
+  if(C.st==='sleep'&&S.energy>45&&D.show){wake();decide()}}
+function down(e){
+  if(!R.open)return;const p=pt(e);let drag=null;
+  if(D.show&&p.y>=Y0-30){drag='laser';laserTo(p,true)}
+  else if(onCat(p)){drag='pet';C.petT=1.1;S.joy=Math.min(100,S.joy+2);spawn('h',C.x+rnd(-20,20),C.y-100*sc(C.y));purr(true);if(C.st==='sleep'||C.st==='settle'){}}
+  else if(Math.abs(p.x-BOWL.x)<46&&Math.abs(p.y-BOWL.y)<30)feed(S.kind);
+  else if(Math.abs(p.x-BED.x)<90&&Math.abs(p.y-BED.y)<30)toggleBed();
+  else if(p.y>Y0-10&&(C.st==='idle')){goto(p.x-C.face*0,p.y,()=>{idle(2)});say('mrrp!',1.2)}
+  if(drag){R.drag=drag;try{R.svg.setPointerCapture(e.pointerId)}catch{}}}
+function move(e){
+  if(!R.drag)return;const p=pt(e);
+  if(R.drag==='laser')laserTo(p);
+  else if(R.drag==='pet'){if(onCat(p)){C.petT=1.1;R._ht=(R._ht||0)+1;if(R._ht%8===0){spawn('h',C.x+rnd(-26,26),C.y-100*sc(C.y));S.joy=Math.min(100,S.joy+1.2)}}}}
+function up(){if(R.drag==='pet'){setTimeout(()=>{if(C.petT<=0.05||true)stopPurr()},500);save()}R.drag=null}
+function feed(kind){
+  if(S.food>0&&S.kind!==kind){note('Finish the bowl first, then pick '+FOOD[kind].label.toLowerCase());return}
+  if(S.food>=3){note('The bowl is full');return}
+  S.kind=kind;S.food++;drawFood();save();
+  if(C.st==='sleep'||C.st==='settle'){if(S.full<60)wake();else note('Mochi will eat when she wakes')}
+  if(C.st==='idle'||C.st==='walk'&&C.then!==beginEat){if(S.full<86){goto(BOWL.x-66,BOWL.y+2,beginEat,70);say('mrrp!',1.2)}else note('Mochi is full – she will eat later')}}
+function toggleBed(){if(C.st==='sleep'||C.st==='settle'){wake();return}if(D.show){D.show=false}C.bedReq=true;if(C.st==='idle'||C.st==='walk'||C.st==='chase'||C.st==='stalk'){goto(BED.x,BED.y-5,beginSettle,66);C.bedReq=false}}
+function laser(){D.show=!D.show;if(D.show){D.x=clamp(C.x+(C.face||1)*130,X0,X1);D.y=clamp(C.y+4,Y0,Y1);D.last=R.time;D.vel=0;note('Drag on the floor to move the laser');if(C.st==='sleep'&&S.energy>45){wake()}if(C.st==='idle'&&S.energy>12)decide()}else if(C.st==='chase'||C.st==='stalk')idle(1.2)}
+
+/* ───── open / close ───── */
+function openRelax(){
+  if(R.open)return;S=load();
+  let w=q$('#rx');if(w)w.remove();
+  w=document.createElement('div');w.id='rx';w.className='web';w.setAttribute('role','dialog');w.setAttribute('aria-label','Relax');
+  w.innerHTML=`<div class="tabs"><b style="padding:0 6px">Relax</b><span class="mute" id="rxmood"></span><span style="flex:1"></span><button class="ghost" data-r="close">Done</button></div>
+  <div class="rxbars"><label>🍖<i><b id="rxb-full"></b></i><span>Full</span></label><label>⚡<i><b id="rxb-energy"></b></i><span>Energy</span></label><label>💗<i><b id="rxb-joy"></b></i><span>Joy</span></label></div>
+  <div class="rxstage">${sceneSVG()}<div class="rxtoast" id="rxtoast" role="status" hidden></div></div>
+  <div class="rxbar"><button class="ghost" data-r="kibble">🥣 Kibble</button><button class="ghost" data-r="fish">🐟 Fish</button><button class="ghost" data-r="laser" aria-pressed="false">🔴 Laser</button><button class="ghost" data-r="bed">🛏 Bed</button><button class="ghost" data-r="snd" aria-label="Purr sound">🔊 Purr</button></div>`;
+  document.body.append(w);
+  R.svg=q$('#rxs');R.fx=q$('#rxfx');R.cat=q$('#rxcat');R.refs=CatArt.mount(R.cat);
+  R.svg.style.touchAction='none';
+  R.svg.addEventListener('pointerdown',down);R.svg.addEventListener('pointermove',move);R.svg.addEventListener('pointerup',up);R.svg.addEventListener('pointercancel',up);
+  Object.assign(C,{x:200,y:470,face:-1,st:'idle',t:0,wait:1,walk:0,gal:0,cr:0,lp:0,petT:0,hs:0,bedReq:false,then:null});D.show=false;P.length=0;
+  drawFood();R.open=true;R.last=0;R.time=0;bubT=0;
+  if(S.energy<20){C.x=BED.x;C.y=BED.y-5;C.st='sleep';C.t=0}
+  bottom();stats();R.raf=requestAnimationFrame(loop);
+}
+function close(){
+  if(!R.open&&!q$('#rx'))return;
+  R.open=false;cancelAnimationFrame(R.raf);stopPurr();save();
+  q$('#rx')?.remove();R.svg=R.cat=R.refs=R.fx=null;R.drag=null}
+function bottom(){const n=q$('#rx');if(n)n.style.bottom=document.getElementById('hud')?'84px':'0'}
+window.relaxOpen=openRelax;
+window.relaxReset=close;window.relaxBottom=bottom;
+document.addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('[data-r]');if(!b||!R.open&&b.dataset.r!=='open')return;
+  switch(b.dataset.r){
+   case 'open':openRelax();break;case 'close':close();break;
+   case 'kibble':feed('kibble');break;case 'fish':feed('fish');break;
+   case 'laser':laser();b.setAttribute('aria-pressed',D.show);break;case 'bed':toggleBed();break;
+   case 'snd':S.snd=!S.snd;if(S.snd)purr(false);else stopPurr();save();note(S.snd?'Purr sound on – pet Mochi':'Purr sound off');break}
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&R.open)save()});
+window.__relax={get S(){return S},C,D,R,step};
+})();
+
 </script>
 </body>
 </html>

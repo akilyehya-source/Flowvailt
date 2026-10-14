@@ -554,12 +554,12 @@ function showLock(msg=''){
  if(window.libReset)libReset();if(window.relaxReset)relaxReset();if(window.musicReset)musicReset();if(window.memReset)memReset();if(window.aiReset)aiReset();if(window.tvReset)tvReset();
  key=null;users={};palette=null;clipWipe();session=null;drawHud();web=null;drawWeb();notes=[];noteUI=null;drawNotes();
  const first=!vault;
- if(window.lockMarkup)root.innerHTML=lockMarkup(first,msg,`v14 · ${standalone?'installed app mode':'browser mode'}`);else root.innerHTML=`<div class="lock"><form id="f"><div class="logo" style="font-size:18px">FlowVault</div>
+ if(window.lockMarkup)root.innerHTML=lockMarkup(first,msg,`v16 · ${standalone?'installed app mode':'browser mode'}`);else root.innerHTML=`<div class="lock"><form id="f"><div class="logo" style="font-size:18px">FlowVault</div>
  <p class="mute" style="margin:6px 0 0">${first?'Create a master password for this demo vault. Everything is encrypted in your browser before it is stored.':'Enter your master password to unlock.'}</p>
  <input id="pw" type="password" autocomplete="off" placeholder="Master password" aria-label="Master password" autofocus>
  <div class="err" id="err">${esc(msg)}</div>
  <button class="btn" style="width:100%" id="go">${first?'Create vault':'Unlock'}</button>
- ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v14 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
+ ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v16 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
  $('#f').onsubmit=async e=>{e.preventDefault();const pw=$('#pw').value;if(pw.length<4){$('#err').textContent='Use at least 4 characters.';return}
   if(window.lockBusy)lockBusy();else{$('#go').disabled=true;$('#go').textContent='Deriving key…'}
   try{await unlock(pw)}catch{if(window.lockFail&&$('.gate'))lockFail('Wrong master password.');else showLock('Wrong master password.')}};
@@ -2788,7 +2788,7 @@ const put=async rec=>{const d=await db();return new Promise((res,rej)=>{const t=
 const getBlob=async id=>{const d=await db();return new Promise((res,rej)=>{const r=d.transaction('videos').objectStore('videos').get(id);r.onsuccess=()=>res(r.result&&r.result.blob);r.onerror=()=>rej(r.error)})};
 const delRec=async id=>{const d=await db();return new Promise((res,rej)=>{const t=d.transaction('videos','readwrite');t.objectStore('videos').delete(id);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})};
 
-function msg(t){q$('.msg.tvm')?.remove();const m=document.createElement('div');m.className='msg tvm';m.setAttribute('role','status');m.textContent=t;document.body.append(m);setTimeout(()=>m.remove(),3800)}
+function msg(t){q$('.msg.tvm')?.remove();const m=document.createElement('div');m.className='msg tvm';m.setAttribute('role','status');m.textContent=t;document.body.append(m);setTimeout(()=>m.remove(),/not open|Could not|could not/.test(t)?9000:3800)}
 
 /* ── probe a file: can this device play it? duration, size, thumbnail ── */
 function probe(blob){return new Promise(res=>{
@@ -2810,7 +2810,7 @@ function probe(blob){return new Promise(res=>{
 /* ── any format: convert what this device cannot play, with the bundled ffmpeg (runs on the phone, offline) ── */
 const VEXT=/\.(mp4|m4v|mov|qt|webm|mkv|avi|wmv|asf|flv|f4v|ts|mts|m2ts|vob|3gp|3g2|ogv|mpg|mpeg|mpe|divx|rm|rmvb|mxf)$/i;
 const MAXCONV=1.2*1073741824;
-let FF=null,ffP=null,conv=null,wake=null;
+let FF=null,ffP=null,conv=null,wake=null,why='';
 const loadScript=src=>new Promise((res,rej)=>{if(window.FFmpegWASM)return res();const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Could not load the converter'));document.head.append(s)});
 async function getFF(){
   if(FF)return FF;
@@ -2818,8 +2818,11 @@ async function getFF(){
     await loadScript('lib-ff.js');
     const abs=n=>new URL(n,location.href).href;
     const f=new FFmpegWASM.FFmpeg();
-    await f.load({coreURL:abs('lib-ff-core.js'),wasmURL:abs('lib-ff-core.wasm')});
-    if(window.__tvdebug)f.on('log',({message})=>console.log('ff '+message));
+    /* the 32 MB engine is stored as 3 small parts (GitHub's web uploader refuses files over 25 MB) */
+    const parts=[];for(let i=0;i<3;i++){const r=await fetch(abs('lib-ff-wasm-'+i+'.bin'));if(!r.ok)throw new Error('missing engine part '+i);parts.push(await r.arrayBuffer())}
+    const wasmURL=URL.createObjectURL(new Blob(parts,{type:'application/wasm'}));
+    await f.load({coreURL:abs('lib-ff-core.js'),wasmURL});
+    f.on('log',({message})=>{if(window.__tvdebug)console.log('ff '+message);if(/error|invalid|not supported|unsupported|no such|moov|failed|unknown/i.test(message))why=message.slice(0,90)});
     FF=f;return f})().catch(e=>{ffP=null;throw e});
   return ffP}
 function drawConv(){
@@ -2837,7 +2840,7 @@ async function convertFile(file){
   conv={name:file.name,pct:0,stage:'Preparing',cancel:false};drawConv();
   try{if(navigator.wakeLock)wake=await navigator.wakeLock.request('screen')}catch{}
   let f;
-  try{f=await getFF()}catch(e){if(window.__tvdebug)console.log('getFF err '+e);conv=null;drawConv();msg('The converter could not start on this device');return null}
+  try{f=await getFF()}catch(e){why='converter: '+(e&&e.message||e);conv=null;drawConv();return null}
   const onP=({progress})=>{if(conv&&isFinite(progress)){conv.pct=Math.max(0,Math.min(1,progress));drawConv()}};
   f.on('progress',onP);
   const dir='/vin',out='out.'+ext;
@@ -2854,7 +2857,7 @@ async function convertFile(file){
     for(const[stage,args]of attempts){
       if(conv.cancel)break;
       conv.stage=stage;conv.pct=0;drawConv();
-      let code=-1;try{code=await f.exec(args)}catch(e){if(window.__tvdebug)console.log('exec err '+e);if(conv.cancel)break}
+      let code=-1;try{code=await f.exec(args)}catch(e){why='exec: '+(e&&e.message||e);if(conv.cancel)break}
       if(window.__tvdebug)console.log('exec',stage,code);
       if(code!==0){try{await f.deleteFile(out)}catch{};continue}
       let data;try{data=await f.readFile(out)}catch{continue}
@@ -2862,7 +2865,7 @@ async function convertFile(file){
       const blob=new Blob([data],{type:mime});data=null;
       const p=await probe(blob);
       if(p.ok){result={blob,p};break}}
-  }catch(e){if(window.__tvdebug)console.log('conv err '+e)}
+  }catch(e){why='convert: '+(e&&e.message||e)}
   try{f.off&&f.off('progress',onP)}catch{}
   const cancelled=conv&&conv.cancel;
   if(cancelled){try{f.terminate()}catch{};FF=null;ffP=null}
@@ -2872,15 +2875,15 @@ async function convertFile(file){
   return cancelled?'cancel':result}
 
 async function addFiles(files){
-  let added=0,bad=0,first=null,conv2=0;
+  let added=0,bad=0,first=null,conv2=0;const fails=[];
   for(const f of files){
-    if(!(f.type.startsWith('video/')||VEXT.test(f.name))){bad++;continue}
+    if(/^(image|text|audio)\//.test(f.type)&&!VEXT.test(f.name)){bad++;fails.push(f.name+': not a video ('+f.type+')');continue}
     let p=await probe(f),blob=f;if(window.__tvdebug)console.log('probe',f.name,JSON.stringify({ok:p.ok,dur:p.dur,w:p.w}));
     if(!p.ok){
       if(f.size>MAXCONV){msg('“'+f.name+'” is too large to convert on a phone (limit about 1.2 GB)');bad++;continue}
-      const r=await convertFile(f);
+      why='';const r=await convertFile(f);
       if(r==='cancel'){msg('Conversion cancelled');break}
-      if(!r){bad++;continue}
+      if(!r){bad++;fails.push(f.name+' ('+Math.round(f.size/1048576)+' MB, '+(f.type||'unknown type')+'): '+(why||'unsupported format'));continue}
       blob=r.blob;p=r.p;conv2++}
     const id='v'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
     const name=f.name.replace(/\.[a-z0-9]{2,5}$/i,'').replace(/[_]+/g,' ').trim()||'Untitled';
@@ -2888,7 +2891,7 @@ async function addFiles(files){
     try{await put(rec);const{blob:_b,...meta}=rec;T.vids.push(meta);added++;if(!first)first=id}
     catch(e){msg(e&&e.name==='QuotaExceededError'?'Not enough storage on this device for that video':'Could not save that video');break}}
   if(T.persisted===null&&navigator.storage&&navigator.storage.persist){try{T.persisted=await navigator.storage.persist()}catch{T.persisted=false}}
-  if(bad)msg(bad+(bad>1?' files could':' file could')+' not be opened — is it a damaged or protected video?');
+  if(bad)msg(bad+(bad>1?' files could':' file could')+' not be opened — '+fails.slice(0,2).join(' | ').slice(0,260));
   else if(added)msg((added>1?added+' videos added':'Video added')+(conv2?' · converted for this device':''));
   return first}
 
@@ -3172,7 +3175,7 @@ window.tvBottom=()=>{const w=q$('#tv');if(w)w.style.bottom=document.getElementBy
 
 /* ───────── update check: tells you when a newer version has been uploaded ───────── */
 (()=>{
-const BUILD=14;
+const BUILD=16;
 async function check(){
   try{
     const r=await fetch(location.pathname+'?chk='+Date.now(),{cache:'no-store'});if(!r.ok)return;

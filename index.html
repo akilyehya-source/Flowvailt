@@ -646,12 +646,12 @@ function showLock(msg=''){
  if(window.libReset)libReset();if(window.relaxReset)relaxReset();if(window.musicReset)musicReset();if(window.memReset)memReset();if(window.aiReset)aiReset();if(window.tvReset)tvReset();if(window.nxReset)nxReset();
  key=null;users={};palette=null;clipWipe();session=null;drawHud();web=null;drawWeb();notes=[];noteUI=null;drawNotes();
  const first=!vault;
- if(window.lockMarkup)root.innerHTML=lockMarkup(first,msg,`v19 · ${standalone?'installed app mode':'browser mode'}`);else root.innerHTML=`<div class="lock"><form id="f"><div class="logo" style="font-size:18px">FlowVault</div>
+ if(window.lockMarkup)root.innerHTML=lockMarkup(first,msg,`v20 · ${standalone?'installed app mode':'browser mode'}`);else root.innerHTML=`<div class="lock"><form id="f"><div class="logo" style="font-size:18px">FlowVault</div>
  <p class="mute" style="margin:6px 0 0">${first?'Create a master password for this demo vault. Everything is encrypted in your browser before it is stored.':'Enter your master password to unlock.'}</p>
  <input id="pw" type="password" autocomplete="off" placeholder="Master password" aria-label="Master password" autofocus>
  <div class="err" id="err">${esc(msg)}</div>
  <button class="btn" style="width:100%" id="go">${first?'Create vault':'Unlock'}</button>
- ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v19 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
+ ${first?'':'<p class="mute" style="text-align:center;margin:14px 0 0"><button type="button" class="link" id="reset">Forgot it? Reset demo vault</button></p>'}<p class="mute" style="text-align:center;margin:10px 0 0;font-size:11px">v20 · ${standalone?'installed app mode':'browser mode'}</p></form></div>`;
  $('#f').onsubmit=async e=>{e.preventDefault();const pw=$('#pw').value;if(pw.length<4){$('#err').textContent='Use at least 4 characters.';return}
   if(window.lockBusy)lockBusy();else{$('#go').disabled=true;$('#go').textContent='Deriving key…'}
   try{await unlock(pw)}catch{if(window.lockFail&&$('.gate'))lockFail('Wrong master password.');else showLock('Wrong master password.')}};
@@ -3620,7 +3620,7 @@ window.nxBottom=()=>{const w=q$('#nx');if(w)w.style.bottom=document.getElementBy
 
 /* ───────── update check: tells you when a newer version has been uploaded ───────── */
 (()=>{
-const BUILD=19;
+const BUILD=20;
 async function check(){
   try{
     const r=await fetch(location.pathname+'?chk='+Date.now(),{cache:'no-store'});if(!r.ok)return;
@@ -3633,6 +3633,7 @@ async function check(){
     document.body.append(b);
   }catch{}
 }
+try{if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).catch(()=>{})}catch{}
 setTimeout(check,2500);setInterval(check,120000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
 window.__upd={BUILD,check};
